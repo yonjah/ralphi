@@ -1,0 +1,11 @@
+{
+	"buckets": {
+		"test": {
+			"size": 5,
+			"ttl": "15"
+		}
+	},
+	"host": "0.0.0.0",
+	"port": 8000,
+	"clearInterval": 10
+}

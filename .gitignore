@@ -1,0 +1,9 @@
+node_modules
+
+lib-cov
+html-report
+
+.nyc_output
+.tern-port
+coverage
+npm-debug.log
