@@ -10,8 +10,8 @@
   },
   "homepage": "https://github.com/yonjah/ralphi#readme",
   "scripts": {
-    "test": "mocha test/unit/**/*.test.js",
-    "cover": "nyc --reporter=lcov --reporter=text mocha test/unit/**/*.test.js"
+    "test": "cd ..  && npm run test-client",
+    "cover": "cd ..  && npm run cover-client"
   },
   "repository": {
     "type": "git",

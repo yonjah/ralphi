@@ -8,13 +8,14 @@ const {spawnSync} = require('child_process');
 const {_, path, getBinPath, getAssetPath} = utils;
 const cli = getBinPath('server-cli.js');
 const cwd = getAssetPath('');
+const baseTimeout = process.env.NYC_CONFIG ? 600 : 400; //coverage makes everything slower
 let timeout;
 
 function runCli (args = []) {
 	if (!timeout) { //first cli run sometimes seem to take longer
-		timeout = 1000;
+		timeout = baseTimeout * 2;
 	} else {
-		timeout = 400;
+		timeout = baseTimeout;
 	}
 
 	return spawnSync(
@@ -28,9 +29,8 @@ function runCli (args = []) {
 		);
 }
 
-
 describe('cli', function () {
-	this.slow(550);
+	this.slow(baseTimeout + 50);
 
 	describe('--help', function () {
 		this.slow(250);

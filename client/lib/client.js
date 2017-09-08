@@ -20,7 +20,7 @@ function promReq (options) {
 			});
 			res.on('end', () => {
 				if (res.statusCode !== 200) {
-					return reject(new Error(data || `Status ${res.statusCode}`));
+					return reject(new Error(`${data}(stauts ${res.statusCode})`));
 				}
 				return resolve(data);
 			});
@@ -35,13 +35,14 @@ function promReq (options) {
 }
 
 class RalphiClient {
-	constructor (conf) {
-		this.settings = Object.assign({}, defaults, conf);
-		this._getOptions = {
-			method: 'GET',
-			host: this.settings.host,
-			port: this.settings.port
-		};
+	constructor (config = {}) {
+		if (config.host !== undefined && (!config.host || typeof config.host !== 'string')) {
+			throw new Error('Config host must be a string with value');
+		}
+		if (config.port !== undefined && (config.port < 1 || parseInt(config.port, 10) !== config.port)) {
+			throw new Error('Config port must be positive numeric integer');
+		}
+		this.settings = Object.assign({}, defaults, config);
 	}
 
 	/**
@@ -51,6 +52,12 @@ class RalphiClient {
 	 * @return {Promise<Object>}
 	 */
 	take (bucket, key) {
+		if (!bucket || typeof bucket !== 'string') {
+			throw new Error('Bucket must exist and be a string');
+		}
+		if (!key || typeof key !== 'string') {
+			throw new Error('Key must exist and be a string');
+		}
 		return promReq({
 				method: 'GET',
 				host: this.settings.host,
@@ -68,6 +75,12 @@ class RalphiClient {
 	 * @return {Promise<Boolean>}
 	 */
 	reset (bucket, key) {
+		if (!bucket || typeof bucket !== 'string') {
+			throw new Error('Bucket must exist and be a string');
+		}
+		if (!key || typeof key !== 'string') {
+			throw new Error('Key must exist and be a string');
+		}
 		return promReq({
 				method: 'DELETE',
 				host: this.settings.host,

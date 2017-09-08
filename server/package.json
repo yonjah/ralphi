@@ -10,8 +10,8 @@
   },
   "homepage": "https://github.com/yonjah/ralphi#readme",
   "scripts": {
-    "test": "mocha test/unit/**/*.test.js",
-    "cover": "nyc --reporter=lcov --reporter=text mocha test/unit/**/*.test.js"
+    "test": "cd ..  && npm run test-server",
+    "cover": "cd ..  && npm run cover-server"
   },
   "bin": {
     "ralphi": "bin/server-cli.js"
@@ -38,14 +38,5 @@
     "joi": "^10.6.0",
     "lodash": "^4.17.4",
     "pino": "^4.7.1"
-  },
-  "devDependencies": {
-    "eslint": "^4.6.1",
-    "lolex": "^2.1.2",
-    "mocha": "^3.5.0",
-    "nyc": "^11.2.1",
-    "should": "^12.0.0",
-    "should-sinon": "0.0.6",
-    "sinon": "^3.2.1"
   }
 }
