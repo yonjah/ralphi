@@ -1,36 +1,26 @@
 {
-  "name": "ralphi-monorepo",
+  "name": "ralphi-client",
   "version": "0.0.1",
-  "description": "Rate limiting api server",
+  "description": "Rate limiting api client",
+  "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",
-  "private": true,
   "bugs": {
     "url": "https://github.com/yonjah/ralphi/issues"
   },
   "homepage": "https://github.com/yonjah/ralphi#readme",
   "scripts": {
-    "test": "npm run test-server",
-    "cover": "npm run cover-server",
-    "test-server": "cd server && npm run test",
-    "cover-server":  "cd server && npm run cover",
-    "install-submodules": "cd server && npm install"
+    "test": "mocha test/unit/**/*.test.js",
+    "cover": "nyc --reporter=lcov --reporter=text mocha test/unit/**/*.test.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yonjah/ralphi.git"
   },
   "keywords": [
-    "rate limiting",
-    "bruteforce protection",
-    "bruteforce",
-    "password",
-    "security",
-    "rate limit",
-    "throttling",
-    "throttle",
-    "rate",
-    "limit"
+    "ralphi",
+    "http",
+    "client"
   ],
   "devDependencies": {
     "eslint": "^4.6.1",

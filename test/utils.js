@@ -12,16 +12,8 @@ function uid (min = 1, range = 10000) {
 	return Math.ceil(Math.random() * range) + min;
 }
 
-function requireSrc (file) {
-	return require(getSrcPath(file));
-}
-
-function getSrcPath (file) {
-	return path.join(base, 'lib', file);
-}
-
-function getBinPath (file) {
-	return path.join(base, 'bin', file);
+function getAssetPath (file) {
+	return path.join(base, 'test', 'assets', file);
 }
 
 module.exports = {
@@ -32,7 +24,5 @@ module.exports = {
 	sinon,
 	base,
 	uid,
-	requireSrc,
-	getBinPath,
-	getSrcPath
+	getAssetPath
 };

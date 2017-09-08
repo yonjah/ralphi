@@ -1,2 +1,2 @@
 'use strict';
-require('./lib/cli.js');
+require('./bin/server-cli.js');

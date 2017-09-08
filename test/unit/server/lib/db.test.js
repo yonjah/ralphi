@@ -7,6 +7,8 @@ const utils = require('./utils');
 const {should, lolex, uid, requireSrc} = utils;
 const db = requireSrc('db');
 
+console.log(typeof utils.should);
+
 describe('db', () => {
 	const logger = {debug (){}, info (){}};
 	const buckets = {

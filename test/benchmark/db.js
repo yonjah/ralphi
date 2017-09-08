@@ -18,7 +18,7 @@ const ttl        = Math.ceil(2 * items / 10000);
 const buckets    = {
 	[bucket]: {size: 20, ttl}
 };
-const db = require('../../lib/db')({buckets, logger});
+const db = require('../../server/lib/db')({buckets, logger});
 
 let i,
 	times = [];

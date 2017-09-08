@@ -5,10 +5,9 @@
 'use strict';
 const utils = require('./utils');
 const {spawnSync} = require('child_process');
-const {_, path, getBinPath} = utils;
+const {_, path, getBinPath, getAssetPath} = utils;
 const cli = getBinPath('server-cli.js');
-const confPath = path.join('..', '..', 'assets');
-
+const cwd = getAssetPath('');
 let timeout;
 
 function runCli (args = []) {
@@ -17,16 +16,18 @@ function runCli (args = []) {
 	} else {
 		timeout = 400;
 	}
+
 	return spawnSync(
 			cli,
 			args,
 			{
-				cwd: path.join(__dirname),
 				encoding: 'utf-8',
+				cwd,
 				timeout
 			}
 		);
 }
+
 
 describe('cli', function () {
 	this.slow(550);
@@ -49,8 +50,8 @@ describe('cli', function () {
 
 	describe('--config' , () => {
 		it('should load config from config file relative to cmd', () => {
-			const confFile = path.join(confPath, 'conf.json');
-			const conf   = require(confFile);
+			const confFile = './conf.json';
+			const conf   = require(path.join(cwd, confFile));
 			const result = runCli(['--config', confFile, '-l', 'debug']);
 			result.stdout.should.be.ok();
 			result.stderr.should.not.be.ok();
@@ -59,7 +60,7 @@ describe('cli', function () {
 		});
 
 		it('should load config from config file absolute path', () => {
-			const confFile = path.join(__dirname, confPath, 'conf.json');
+			const confFile = getAssetPath('conf.json');
 			const conf   = require(confFile);
 			const result = runCli(['--config', confFile, '-l', 'debug']);
 			result.stdout.should.be.ok();
@@ -69,48 +70,40 @@ describe('cli', function () {
 		});
 
 		it('should fail if config does not exist', () => {
-			const confFile = path.join(__dirname, confPath, 'no-file.json');
+			const confFile = getAssetPath('no-file.json');
 			const result = runCli(['--config', confFile, '-l', 'error']);
-			result.stdout.should.be.ok();
+			result.stdout.should.not.be.ok();
 			result.stderr.should.be.ok();
-			const log = JSON.parse(result.stdout.split('\n')[0]);
-			log.should.have.property('msg', `Could not find file ${confFile}`);
 			result.stderr.should.match(new RegExp(`Could not find file ${confFile}`));
 		});
 
 		it('should fail if config file is not json or js file', () => {
-			const confFile = path.join(__dirname, confPath, 'bad-format.yml');
+			const confFile = getAssetPath('bad-format.yml');
 			const result = runCli(['--config', confFile, '-l', 'error']);
-			result.stdout.should.be.ok();
+			result.stdout.should.not.be.ok();
 			result.stderr.should.be.ok();
-			const log = JSON.parse(result.stdout.split('\n')[0]);
-			log.should.have.property('msg', 'Config file should be either .js or .json file');
 			result.stderr.should.match(/Config file should be either \.js or \.json file/);
 		});
 
 		it('should fail if config is invalid', () => {
-			const confFile = path.join(__dirname, confPath, 'conf-invalid.json');
+			const confFile = getAssetPath('conf-invalid.json');
 			const result = runCli(['--config', confFile, '-l', 'error']);
-			result.stdout.should.be.ok();
+			result.stdout.should.not.be.ok();
 			result.stderr.should.be.ok();
-			const log = JSON.parse(result.stdout.split('\n')[0]);
-			log.should.have.property('msg', 'Unknown ttl unit Y for bucket test');
 			result.stderr.should.match(/Unknown ttl unit Y for bucket test/);
 		});
 
 		it('should fail if config is missing buckets', () => {
-			const confFile = path.join(__dirname, confPath, 'conf-missing-buckets.json');
+			const confFile = getAssetPath('conf-missing-buckets.json');
 			const result = runCli(['--config', confFile, '-l', 'error']);
-			result.stdout.should.be.ok();
+			result.stdout.should.not.be.ok();
 			result.stderr.should.be.ok();
-			const log = JSON.parse(result.stdout.split('\n')[0]);
-			log.should.have.property('msg', 'Bucket list is empty');
 			result.stderr.should.match(/Bucket list is empty/);
 		});
 
 		it('should set default options if  not available in the config file', () => {
 			const bucket   = ['b1', 1, 2];
-			const confFile = path.join(__dirname, confPath, 'conf-missing-buckets.json');
+			const confFile = getAssetPath('conf-missing-buckets.json');
 			const result   = runCli(['--config', confFile, '-l', 'debug', bucket.join(',')]);
 			result.stdout.should.be.ok();
 			result.stderr.should.not.be.ok();
@@ -125,7 +118,7 @@ describe('cli', function () {
 		it('should set options from command line if available and not in config file', () => {
 			const bucket   = ['b1', 1, 2];
 			const port     = 8080;
-			const confFile = path.join(__dirname, confPath, 'conf-missing-buckets.json');
+			const confFile = getAssetPath('conf-missing-buckets.json');
 			const conf     = require(confFile);
 			const result   = runCli(['--config', confFile, '-l', 'debug', '--port', port, '--host', 'fake', bucket.join(',')]);
 			result.stdout.should.be.ok();
@@ -142,7 +135,7 @@ describe('cli', function () {
 		it('should merge buckets from config file and commnad line', () => {
 			const bucket   = ['b1', 1, 2];
 			const port     = 8080;
-			const confFile = path.join(__dirname, confPath, 'conf.json');
+			const confFile = getAssetPath('conf.json');
 			const conf     = require(confFile);
 			const result   = runCli(['--config', confFile, '-l', 'debug', '--port', port, '--host', 'fake', bucket.join(',')]);
 			result.stdout.should.be.ok();
@@ -179,7 +172,7 @@ describe('cli', function () {
 
 
 		it('should be set from config file', () => {
-			const confFile = path.join(__dirname, confPath, 'conf.json');
+			const confFile = getAssetPath('conf.json');
 			const conf     = require(confFile);
 			const result   = runCli(['-l', 'debug', '--config', confFile, 'b,1,1']);
 			result.stdout.should.be.ok();
@@ -219,7 +212,7 @@ describe('cli', function () {
 
 
 		it('should be set from config file', () => {
-			const confFile = path.join(__dirname, confPath, 'conf.json');
+			const confFile = getAssetPath('conf.json');
 			const conf     = require(confFile);
 			const result   = runCli(['-l', 'debug', '--config', confFile, 'b,1,1']);
 			result.stdout.should.be.ok();
@@ -259,7 +252,7 @@ describe('cli', function () {
 
 
 		it('should be set from config file', () => {
-			const confFile = path.join(__dirname, confPath, 'conf.json');
+			const confFile = getAssetPath('conf.json');
 			const conf     = require(confFile);
 			const result   = runCli(['-l', 'debug', '--config', confFile, 'b,1,1']);
 			result.stdout.should.be.ok();
@@ -271,15 +264,9 @@ describe('cli', function () {
 	});
 
 	describe('--log-level' , () => {
-		const confFile = path.join(__dirname, confPath, 'conf-invalid.json');
+		const confFile = getAssetPath('conf.json');
 		it('should log from info by default', () => {
 			const result   = runCli(['--config', confFile]);
-			result.stdout.should.be.ok();
-			result.stdout.split('\n').should.have.length(2);
-		});
-
-		it('should log errors in error mode', () => {
-			const result = runCli(['--log-level', 'error', '--config', confFile]);
 			result.stdout.should.be.ok();
 			result.stdout.split('\n').should.have.length(2);
 		});
@@ -292,7 +279,7 @@ describe('cli', function () {
 		it('should be more verbose in debug mode', () => {
 			const result = runCli(['--log-level', 'debug', '--config', confFile]);
 			result.stdout.should.be.ok();
-			result.stdout.split('\n').should.have.length(3);
+			result.stdout.split('\n').should.have.length(4);
 		});
 
 		it('should fail if mode is unknown', () => {
@@ -329,7 +316,7 @@ describe('cli', function () {
 				b1: {size: 1,  ttl: 1},
 				test: {size: 1, ttl: 1}
 			};
-			const confFile = path.join(__dirname, confPath, 'conf.json');
+			const confFile = getAssetPath('conf.json');
 			const conf     = require(confFile);
 			const result   = runCli(['--config', confFile, '-l', 'debug'].concat(_.map(buckets, (b, n) => `${n},${b.size},${b.ttl}`)));
 			result.stdout.should.be.ok();
@@ -343,36 +330,30 @@ describe('cli', function () {
 
 		it('it should fail if size is missing or 0', () => {
 			let result   = runCli(['-l', 'debug', 'b1,,1']);
-			result.stdout.should.be.ok();
 			result.stderr.should.be.ok();
 			result.stderr.should.match(/Error: Could not parse bucket b1,,1 name:b1 size: ttl:1000/);
 
 			result   = runCli(['-l', 'debug', 'b1,0,1']);
-			result.stdout.should.be.ok();
 			result.stderr.should.be.ok();
 			result.stderr.should.match(/bucket size "value" must be larger than or equal to 1/);
 		});
 
 		it('it should fail if ttl is missing or 0', () => {
 			let result   = runCli(['-l', 'debug', 'b1,1']);
-			result.stdout.should.be.ok();
 			result.stderr.should.be.ok();
 			result.stderr.should.match(/Error: Could not parse bucket b1,1 name:b1 size:1 ttl:undefined/);
 
 			result   = runCli(['-l', 'debug', 'b1,1,']);
-			result.stdout.should.be.ok();
 			result.stderr.should.be.ok();
 			result.stderr.should.match(/Error: Could not parse bucket b1,1, name:b1 size:1 ttl:/);
 
 			result   = runCli(['-l', 'debug', 'b1,1,0']);
-			result.stdout.should.be.ok();
 			result.stderr.should.be.ok();
 			result.stderr.should.match(/Error: ttl must be a positive integer for bucket b1,1,0/);
 		});
 
 		it('it should fail if bucket name is not unique', () => {
 			let result   = runCli(['-l', 'debug', 'b1,1,1', 'b1,1,2']);
-			result.stdout.should.be.ok();
 			result.stderr.should.be.ok();
 			result.stderr.should.match(/Error: Bucket b1 was already defined/);
 		});

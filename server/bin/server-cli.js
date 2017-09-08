@@ -138,7 +138,6 @@ function positiveInt (val, name) {
 }
 
 function showUsageOnError (err) {
-	logger && logger.error(err);
 	process.stderr.write(err.stack + '\n');
 	process.stderr.write(program.helpInformation());
 	process.exit(1);
