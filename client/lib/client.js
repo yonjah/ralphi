@@ -64,7 +64,9 @@ class RalphiClient {
 				port: this.settings.port,
 				path: `/${bucket}/${key}`
 			}).then(data => {
-				return JSON.parse(data);
+				data = JSON.parse(data);
+				data.ttl = Math.ceil(data.ttl / 1000);
+				return data;
 			});
 	}
 

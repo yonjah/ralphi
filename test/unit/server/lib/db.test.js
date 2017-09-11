@@ -7,8 +7,6 @@ const utils = require('./utils');
 const {should, lolex, uid, requireSrc} = utils;
 const db = requireSrc('db');
 
-console.log(typeof utils.should);
-
 describe('db', () => {
 	const logger = {debug (){}, info (){}};
 	const buckets = {
@@ -70,12 +68,15 @@ describe('db', () => {
 			for (let i = bucket.size; i > 0; i -= 1) {
 				dbi.take(name, key).should.be.eql({
 					conformant: true,
-					tokens: i - 1,
+					remaining: i - 1,
+					size: bucket.size,
 					ttl: now + bucket.ttl
 				});
 			}
 			dbi.take(name, key).should.be.eql({
 				conformant: false,
+				size: bucket.size,
+				remaining: 0,
 				ttl: now + bucket.ttl
 			});
 		});
@@ -87,19 +88,23 @@ describe('db', () => {
 			for (let i = bucket.size; i > 0; i -= 1) {
 				dbi.take(name, key).should.be.eql({
 					conformant: true,
-					tokens: i - 1,
+					remaining: i - 1,
+					size: bucket.size,
 					ttl: now + bucket.ttl
 				});
 			}
 			dbi.take(name, key).should.be.eql({
 				conformant: false,
+				size: bucket.size,
+				remaining: 0,
 				ttl: now + bucket.ttl
 			});
 			clock.tick(bucket.ttl + 1);
 			now += bucket.ttl + 1;
 			dbi.take(name, key).should.be.eql({
 				conformant: true,
-				tokens: bucket.size - 1,
+				remaining: bucket.size - 1,
+				size: bucket.size,
 				ttl: now + bucket.ttl
 			});
 
@@ -136,17 +141,21 @@ describe('db', () => {
 			const key = uid();
 			dbi.take(name, key).should.be.eql({
 				conformant: true,
-				tokens: bucket.size - 1,
+				remaining: bucket.size - 1,
+				size: bucket.size,
 				ttl: now + bucket.ttl
 			});
 			dbi.take(name, key).should.be.eql({
 				conformant: false,
+				size: bucket.size,
+				remaining: 0,
 				ttl: now + bucket.ttl
 			});
 			dbi.reset(name, key).should.be.equal(true);
 			dbi.take(name, key).should.be.eql({
 				conformant: true,
-				tokens: bucket.size - 1,
+				remaining: bucket.size - 1,
+				size: bucket.size,
 				ttl: now + bucket.ttl
 			});
 		});

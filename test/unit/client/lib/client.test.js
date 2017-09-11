@@ -43,13 +43,14 @@ describe('client', () => {
 
 		afterEach(() => nock.cleanAll);
 
-		it('should send http request to server and return pased response', () => {
+		it('should send http request to server and return passed response', () => {
 			const bucket = 'test';
 			const key = uid().toString();
-			const response = {fake: 'response'};
+			const response = {fake: 'response', ttl: Date.now()};
 			nock(url).get(`/${bucket}/${key}`).reply(200, response);
 			return instance.take(bucket, key)
 				.then(res => {
+					response.ttl = Math.ceil(response.ttl / 1000);
 					should(res).be.eql(response);
 				});
 		});

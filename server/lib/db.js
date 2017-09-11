@@ -86,21 +86,23 @@ function raplhDB (conf = {}) {
 			if (!record || record.ttl < Date.now()) {
 				record = {
 					ttl: Date.now() + bucket.ttl,
-					tokens: bucket.size - 1
+					remaining: bucket.size - 1
 				};
 				logger.debug({msg: 'new record', record});
 				bucket.storage.set(key, record);
-			} else if (record.tokens > 0) {
+			} else if (record.remaining > 0) {
 				logger.debug({msg: 'existing record', record});
-				record.tokens -= 1;
+				record.remaining -= 1;
 			} else {
 				logger.debug({msg: 'limited record', record});
 				return {
 					conformant: false,
+					size: bucket.size,
+					remaining: 0,
 					ttl: record.ttl
 				};
 			}
-			return Object.assign({conformant: true}, record);
+			return Object.assign({conformant: true, size: bucket.size}, record);
 		},
 		reset (bucketName, key) {
 			logger.debug({msg: 'delete', bucket: bucketName, key});
