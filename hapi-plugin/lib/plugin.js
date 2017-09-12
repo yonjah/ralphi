@@ -10,7 +10,7 @@ const optionsSchema = joi.object().keys({
 	client: joi.object().keys({
 		take: joi.func().arity(2).required(),
 		reset: joi.func().arity(2).required()
-	}).required(),
+	}).unknown().required(),
 	ext: joi.string().valid(['onPreAuth', 'onPostAuth', 'onPreHandler']).default('onPreHandler'),
 	allRoutes: joi.boolean().default(false),
 	bucket: joi.string().alphanum(),
