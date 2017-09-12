@@ -53,6 +53,7 @@ module.exports = {
 		});
 
 		server.start(err => {
+			/* istanbul ignore if*/
 			if (err) {
 				throw err;
 			}

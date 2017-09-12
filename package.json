@@ -10,8 +10,9 @@
   },
   "homepage": "https://github.com/yonjah/ralphi#readme",
   "scripts": {
-    "test": "mocha 'test/unit/**/*.test.js'",
-    "cover": "nyc --reporter=lcov --reporter=text mocha 'test/unit/**/*.test.js'",
+    "test": "mocha 'test/**/*.test.js'",
+    "cover": "nyc --reporter=lcov --reporter=text mocha 'test/**/*.test.js'",
+    "test-integration": "mocha 'test/integration/**/*.test.js'",
     "test-server": "mocha 'test/unit/server/**/*.test.js'",
     "cover-server": "nyc --reporter=lcov --reporter=text mocha 'test/unit/server/**/*.test.js'",
     "test-client": "mocha 'test/unit/client/**/*.test.js'",
