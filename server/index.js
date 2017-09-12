@@ -1,2 +1,2 @@
 'use strict';
-require('./bin/server-cli.js');
+module.exports = require('./bin/server-cli.js');
