@@ -19,7 +19,11 @@
     "cover-client": "nyc --reporter=lcov --reporter=text mocha 'test/unit/client/**/*.test.js'",
     "test-hapi-plugin": "mocha 'test/unit/hapi-plugin/**/*.test.js'",
     "cover-hapi-plugin": "nyc --reporter=lcov --reporter=text mocha 'test/unit/hapi-plugin/**/*.test.js'",
-    "install-submodules": "cd server && npm install"
+    "postinstall": "npm install-submodules",
+    "install-submodules": "npm run install-server &&  npm run install-client && npm run install-hapi-plugin",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-hapi-plugin": "cd hapi-plugin && npm install"
   },
   "repository": {
     "type": "git",
