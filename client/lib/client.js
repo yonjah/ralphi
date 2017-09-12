@@ -3,36 +3,11 @@
  * @description Ralphi Client for querying Ralphi server
  */
 'use strict';
-const http = require('http');
-
+const promHttpRequest = require('./promHttpRequest');
 const defaults = {
 	host: 'localhost',
 	port: 8910
 };
-
-function promReq (options) {
-	return new Promise((resolve, reject) => {
-		const req = http.request(options, res => {
-			let data = '';
-			res.setEncoding('utf8');
-			res.on('data', chunk => {
-				data += chunk;
-			});
-			res.on('end', () => {
-				if (res.statusCode !== 200) {
-					return reject(new Error(`${data}(stauts ${res.statusCode})`));
-				}
-				return resolve(data);
-			});
-		});
-
-		req.on('error', e => {
-			reject(e);
-		});
-
-		req.end();
-	});
-}
 
 class RalphiClient {
 	constructor (config = {}) {
@@ -58,7 +33,7 @@ class RalphiClient {
 		if (!key || typeof key !== 'string') {
 			throw new Error('Key must exist and be a string');
 		}
-		return promReq({
+		return promHttpRequest({
 				method: 'GET',
 				host: this.settings.host,
 				port: this.settings.port,
@@ -83,7 +58,7 @@ class RalphiClient {
 		if (!key || typeof key !== 'string') {
 			throw new Error('Key must exist and be a string');
 		}
-		return promReq({
+		return promHttpRequest({
 				method: 'DELETE',
 				host: this.settings.host,
 				port: this.settings.port,
