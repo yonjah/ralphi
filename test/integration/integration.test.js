@@ -29,7 +29,7 @@ describe('integration', () => {
 			done();
 		});
 		ralphiCli.on('close', code => {
-			if (code !== 0) {
+			if (code) {
 				throw new Error(`cli exit with code ${code}`);
 			}
 		});
