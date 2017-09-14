@@ -5,20 +5,18 @@
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",
   "private": true,
+
   "bugs": {
     "url": "https://github.com/yonjah/ralphi/issues"
   },
   "homepage": "https://github.com/yonjah/ralphi#readme",
   "scripts": {
     "test": "mocha 'test/**/*.test.js'",
-    "cover": "nyc --reporter=lcov --reporter=text mocha 'test/**/*.test.js'",
+    "cover": "nyc --reporter=lcov --reporter=text mocha 'test/unit/**/*.test.js'",
     "test-integration": "mocha 'test/integration/**/*.test.js'",
     "test-server": "mocha 'test/unit/server/**/*.test.js'",
-    "cover-server": "nyc --reporter=lcov --reporter=text mocha 'test/unit/server/**/*.test.js'",
     "test-client": "mocha 'test/unit/client/**/*.test.js'",
-    "cover-client": "nyc --reporter=lcov --reporter=text mocha 'test/unit/client/**/*.test.js'",
     "test-hapi-plugin": "mocha 'test/unit/hapi-plugin/**/*.test.js'",
-    "cover-hapi-plugin": "nyc --reporter=lcov --reporter=text mocha 'test/unit/hapi-plugin/**/*.test.js'",
     "postinstall": "npm install-submodules",
     "install-submodules": "npm run install-server &&  npm run install-client && npm run install-hapi-plugin",
     "install-server": "cd server && npm install",
@@ -41,6 +39,7 @@
     "rate",
     "limit"
   ],
+  "engines" : { "node" : ">=6.0.0" },
   "devDependencies": {
     "eslint": "^4.6.1",
     "hapi": "^16.5.2",

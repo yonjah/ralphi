@@ -32,6 +32,7 @@
     "rate",
     "limit"
   ],
+  "engines" : { "node" : ">=6.0.0" },
   "peerDependencies": {
     "hapi": ">= 16",
     "ralphi-client": ">= 0.0.1"
