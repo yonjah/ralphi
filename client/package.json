@@ -1,6 +1,6 @@
 {
   "name": "ralphi-client",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Rate limiting api client",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
@@ -22,5 +22,7 @@
     "http",
     "client"
   ],
-  "engines" : { "node" : ">=6.0.0" }
+  "engines": {
+    "node": ">=6.0.0"
+  }
 }

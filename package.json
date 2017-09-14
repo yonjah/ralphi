@@ -1,11 +1,10 @@
 {
   "name": "ralphi-monorepo",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Rate limiting api server",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",
   "private": true,
-
   "bugs": {
     "url": "https://github.com/yonjah/ralphi/issues"
   },
@@ -39,7 +38,9 @@
     "rate",
     "limit"
   ],
-  "engines" : { "node" : ">=6.0.0" },
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "devDependencies": {
     "eslint": "^4.6.1",
     "hapi": "^16.5.2",
