@@ -5,25 +5,27 @@
  */
 'use strict';
 
-const path       = require('path');
-const fs         = require('fs');
-const program    = require('commander');
-const _          = require('lodash');
-const joi        = require('joi');
-const pino       = require('pino');
-const validators = require('../lib/validators');
-const server     = require('../lib/server');
-const db         = require('../lib/db');
-const buckets    = {};
-let logger;
+const path          = require('path');
+const fs            = require('fs');
+const program       = require('commander');
+const _             = require('lodash');
+const joi           = require('joi');
+const pino          = require('pino');
+const validators    = require('../lib/validators.js');
+const server        = require('../lib/server.js');
+const db            = require('../lib/db.js');
+const serializers   = require('../lib/serializers.js');
+const cleanInterval = require('../lib/clean-runner.js');
+const buckets       = {};
 
+let logger;
 
 program
   .version('0.0.1')
   .usage('[options] [buckets...]')
   .description('Each bucket is a comma seperated defention in the form of name:String,size:Integer,ttl:Integer')
   .option('-c, --config <file>', 'Config file path (either .js or .json)')
-  .option('-i, --clear-interval <n>', 'clear interval')
+  .option('-i, --clean-interval <n>', 'Clean interval in seconds')
   .option('-p, --port <n>', 'port', 8910)
   .option('-h, --host <ip>', 'host or ip to listen on', 'localhost')
   .option('-l, --log-level <level>', 'log level (debug,info,error,silent)', 'info')
@@ -33,15 +35,9 @@ process.on('uncaughtException', showUsageOnError);
 
 logger = pino({level: program.logLevel});
 
-logger.serializers = {
-	req (req) {
-		const obj = pino.stdSerializers.req(req.raw.req);
-		obj.id = req.id;
-		return obj;
-	}
-};
+logger.serializers = serializers;
 
-const config = {port: program.port, host: program.host, clearInterval: program.clearInterval, buckets: program.args};
+const config = {port: program.port, host: program.host, cleanInterval: program.cleanInterval, buckets: program.args};
 
 function parseTTL (ttlString) {
 	let ttl = parseInt(ttlString, 10);
@@ -119,8 +115,9 @@ if (_.isEmpty(buckets)) {
 
 config.port = positiveInt(config.port, 'port');
 
-if (config.clearInterval)  {
-	config.clearInterval = positiveInt(config.clearInterval, 'clear interval');
+if (config.cleanInterval !== undefined)  {
+	config.cleanInterval = positiveInt(config.cleanInterval, 'clean interval');
+	cleanInterval(db, logger, config.cleanInterval * 1000);
 }
 
 logger.debug({config, buckets});

@@ -157,4 +157,47 @@ describe('client', () => {
 			should(instance.reset.bind(instance, 'test', {})).throw('Key must exist and be a string');
 		});
 	});
+
+	describe('clean', () => {
+		const host = 'localhost';
+		const port = 8910;
+		const url  = `http://${host}:${port}`;
+		const instance = new Client({host, port});
+
+		afterEach(() => nock.cleanAll);
+
+		it('should send http request to server and return passed response', () => {
+			nock(url).delete('/clean').reply(200, 'true');
+			return instance.clean()
+				.then(res => {
+					should(res).be.eql(true);
+					nock(url).delete('/clean').reply(200, 'false');
+					return instance.clean();
+				}).then(res => {
+					should(res).be.eql(false);
+				});
+		});
+
+
+		it('should reject request if error is sent', () => {
+			const error = 'Bad fake request';
+			const statusCode = 400;
+			nock(url).delete('/clean').reply(statusCode, error);
+			return instance.clean()
+				.should.be.rejected()
+				.then(res => {
+					should(res).have.property('message', `${error}(stauts ${statusCode})`);
+				});
+		});
+
+		it('should reject request if it fails', () => {
+			const error = new Error('Could not send fake req');
+			nock(url).delete('/clean').replyWithError(error);
+			return instance.clean()
+				.should.be.rejected()
+				.then(res => {
+					should(res).be.eql(error);
+				});
+		});
+	});
 });

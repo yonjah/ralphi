@@ -66,7 +66,7 @@ describe('server', () => {
 			});
 	});
 
-	it('should pass log request to db.take', () => {
+	it('should log request to db.take', () => {
 		const bucket = 'test';
 		const key = uid().toString();
 		return promInject({
@@ -82,7 +82,7 @@ describe('server', () => {
 	});
 
 
-	it('should pass get request to db.reset', () => {
+	it('should pass reset request to db.reset', () => {
 		const bucket = 'test';
 		const key = uid().toString();
 		const reset = {reset: 'fake'};
@@ -99,7 +99,7 @@ describe('server', () => {
 			});
 	});
 
-	it('should pass log request to db.reset', () => {
+	it('should log request to db.reset', () => {
 		const bucket = 'test';
 		const key = uid().toString();
 		const reset = {reset: 'fake'};
@@ -115,6 +115,35 @@ describe('server', () => {
 				log.should.have.property('req');
 				log.should.have.property('bucket', bucket);
 				log.should.have.property('key', key);
+			});
+	});
+
+	it('should pass clean request to db.clean', () => {
+		const clean = {clean: 'fake'};
+
+		db.clean.resolves(clean);
+
+		return promInject({
+				method: 'DELETE',
+				url: '/clean'
+			}).then(res => {
+				db.clean.should.be.calledOnce();
+				res.result.should.be.eql(true);
+			});
+	});
+
+	it('should log request to db.clean', () => {
+		const clean = {clean: 'fake'};
+
+		db.clean.resolves(clean);
+
+		return promInject({
+				method: 'DELETE',
+				url: '/clean'
+			}).then(() => {
+				logger.info.should.be.calledOnce();
+				const log = logger.info.args[0][0];
+				log.should.have.property('req');
 			});
 	});
 

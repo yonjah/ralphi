@@ -150,24 +150,24 @@ describe('cli', function () {
 		});
 	});
 
-	describe('--clear-interval' , () => {
+	describe('--clean-interval' , () => {
 		it('should not be set by default', () => {
 			const result   = runCli(['-l', 'debug', 'b,1,1']);
 			result.stdout.should.be.ok();
 			result.stderr.should.not.be.ok();
 			const confLog = JSON.parse(result.stdout.split('\n')[0]);
 			confLog.should.have.property('config');
-			confLog.config.should.not.have.property('clearInterval');
+			confLog.config.should.not.have.property('cleanInterval');
 		});
 
 		it('should be set from the command line', () => {
 			const interval = 20;
-			const result   = runCli(['-l', 'debug', '--clear-interval', interval, 'b,1,1']);
+			const result   = runCli(['-l', 'debug', '--clean-interval', interval, 'b,1,1']);
 			result.stdout.should.be.ok();
 			result.stderr.should.not.be.ok();
 			const confLog = JSON.parse(result.stdout.split('\n')[0]);
 			confLog.should.have.property('config');
-			confLog.config.should.have.property('clearInterval', interval);
+			confLog.config.should.have.property('cleanInterval', interval);
 		});
 
 
@@ -179,14 +179,14 @@ describe('cli', function () {
 			result.stderr.should.not.be.ok();
 			const confLog = JSON.parse(result.stdout.split('\n')[1]);
 			confLog.should.have.property('config');
-			confLog.config.should.have.property('clearInterval', conf.clearInterval);
+			confLog.config.should.have.property('cleanInterval', conf.cleanInterval);
 		});
 
 		it('should fail if set to negative value', () => {
 			const interval = -20;
-			const result   = runCli(['-l', 'debug', '--clear-interval', interval, 'b,1,1']);
+			const result   = runCli(['-l', 'debug', '--clean-interval', interval, 'b,1,1']);
 			result.stderr.should.be.ok();
-			result.stderr.should.match(new RegExp(`Error: clear interval must be a positive integer \\(${interval}\\)`));
+			result.stderr.should.match(new RegExp(`Error: clean interval must be a positive integer \\(${interval}\\)`));
 		});
 	});
 

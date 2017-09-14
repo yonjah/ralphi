@@ -67,6 +67,21 @@ class RalphiClient {
 				return data === 'true';
 			});
 	}
+
+	/**
+	 * Clean all expired records
+	 * @return {Promise<Boolean>}
+	 */
+	clean () {
+		return promHttpRequest({
+				method: 'DELETE',
+				host: this.settings.host,
+				port: this.settings.port,
+				path: '/clean'
+			}).then(data => {
+				return data === 'true';
+			});
+	}
 }
 
 module.exports = RalphiClient;

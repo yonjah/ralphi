@@ -52,6 +52,16 @@ module.exports = {
 			}
 		});
 
+		server.route({
+			method: 'DELETE',
+			path: '/clean',
+			handler (req, reply) {
+				logger.info({req});
+				db.clean()
+					.then(() => reply(null, true));
+			}
+		});
+
 		server.start(err => {
 			/* istanbul ignore if*/
 			if (err) {
