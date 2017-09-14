@@ -1,0 +1,35 @@
+language: node_js
+
+branches:
+  only:
+    - master
+
+cache:
+  directories:
+    - node_modules
+
+jobs:
+  include:
+    - stage: tests
+      node_js: 6
+      scripts:
+        - "npm run test"
+    - stage: tests
+      node_js: 7
+      scripts:
+        - "npm run test"
+    - stage: tests
+      node_js: 8
+      scripts:
+        - "npm run test"
+    - stage: tests
+      node_js: node
+      scripts:
+        - "npm run test"
+    - stage: coverage
+      node_js: 6
+      scripts:
+        - "npm run cover && bash <(curl -s https://codecov.io/bash) -f coverage/lcov.info"
+    - stage: lint
+      node_js: 6
+      env: LINT=true
