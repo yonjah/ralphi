@@ -6,7 +6,7 @@
 
 function cleanInterval (db, logger, interval) {
 	let cleaning = false;
-	setInterval(() => {
+	return setInterval(() => {
 		if (!cleaning) {
 			cleaning = true;
 			db.clean()
