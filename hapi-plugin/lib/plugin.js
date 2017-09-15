@@ -31,61 +31,72 @@ const register = function (server, options, next) {
 	const client = options.client;
 
 	server.ext(options.ext, (request, reply) => {
-		let settings;
-		if (request.route.settings.plugins.ralphi === false || (!request.route.settings.plugins.ralphi && !options.allRoutes)) {
+		const settings = getSettings(request.route.settings.plugins.ralphi);
+		if (!settings) {
 			return reply.continue();
 		}
 
-		if (request.route.settings.plugins.ralphi) {
-			settings = Object.assign({}, options, request.route.settings.plugins.ralphi);
-		} else {
-			settings = options;
-		}
 		client.take(settings.bucket, settings.getKey(request))
 			.then(limit => {
 				request.plugins.ralphi = limit;
 				request.plugins.ralphi.addHeaders = settings.addHeaders;
 				if (limit.conformant) {
-					reply.continue();
-				} else {
-					const error = boom.tooManyRequests(settings.message);
-					if (settings.addHeaders) {
-						error.output.headers['X-RateLimit-Limit'] = limit.size;
-						error.output.headers['X-RateLimit-Remaining'] = limit.remaining;
-						error.output.headers['X-RateLimit-Reset'] = limit.ttl;
-					}
-					reply(error);
+					return reply.continue();
 				}
+
+				const error = boom.tooManyRequests(settings.message);
+				return reply(error);
 			}).catch(e => {
-				request.plugins.ralphi = e;
 				if (settings.onError) {
 					return settings.onError(request, reply, e);
-				} else {
-					const error = boom.boomify(e, {statusCode: 429});
-					error.output.payload.message = settings.message;
-					if (settings.addHeaders) {
-						error.output.headers['X-RateLimit-Limit'] = settings.errorSize;
-						error.output.headers['X-RateLimit-Remaining'] = 0;
-						error.output.headers['X-RateLimit-Reset'] = Math.ceil(Date.now() / 1000) + settings.errorDelay;
-					}
-					reply(error);
 				}
+
+				request.plugins.ralphi = {
+					conformant: false,
+					size: settings.errorSize,
+					remaining: 0,
+					ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay,
+					error: e
+				};
+				const error = boom.boomify(e, {statusCode: 429});
+				error.output.payload.message = settings.message;
+				return reply(error);
 			});
 
 	});
 
 	server.ext('onPreResponse', (request, reply) => {
 		const response = request.response;
-		const limit = request.plugins.ralphi;
-		if (response.isBoom || !limit || !limit.addHeaders) {
+		const limit    = request.plugins.ralphi;
+		const settings = getSettings(request.route.settings.plugins.ralphi);
+		if (!settings || !settings.addHeaders || !limit) {
+			return reply.continue();
+		}
+
+		if (response.isBoom) {
+			response.output.headers['X-RateLimit-Limit'] = limit.size;
+			response.output.headers['X-RateLimit-Remaining'] = limit.remaining;
+			response.output.headers['X-RateLimit-Reset'] = limit.ttl;
 			return reply.continue();
 		}
 
 		response.header('X-RateLimit-Limit', limit.size);
 		response.header('X-RateLimit-Remaining', limit.remaining);
 		response.header('X-RateLimit-Reset', limit.ttl);
-		reply.continue();
+		return reply.continue();
 	});
+
+	function getSettings (routeSettings) {
+		if (routeSettings === false || (!routeSettings && !options.allRoutes)) {
+			return false;
+		}
+
+		if (routeSettings) {
+			return Object.assign({}, options, routeSettings);
+		}
+
+		return options;
+	}
 
 	return next();
 };

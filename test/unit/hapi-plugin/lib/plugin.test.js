@@ -4,7 +4,7 @@
  */
 'use strict';
 const utils = require('./utils');
-const hapi  = require('hapi');
+const boom  = require('boom');
 const {should, sinon, createServer, requireSrc} = utils;
 const plugin = requireSrc('plugin');
 
@@ -131,6 +131,17 @@ describe('hapi-plugin', () => {
 					handler (req, reply) {
 						reply(null, true);
 					}
+				},  {
+					method: 'GET',
+					path: '/error',
+					config: {
+						plugins: {
+							ralphi: {bucket}
+						}
+					},
+					handler (req, reply) {
+						reply(boom.badRequest());
+					}
 				}
 			]);
 
@@ -175,6 +186,25 @@ describe('hapi-plugin', () => {
 			take.resolves(limit);
 			return promInject({
 					url: '/limit'
+				}).then(response => {
+					response.headers.should.have.property('x-ratelimit-limit', limit.size);
+					response.headers.should.have.property('x-ratelimit-remaining', limit.remaining);
+					response.headers.should.have.property('x-ratelimit-reset', limit.ttl);
+				});
+		});
+
+		it('should return correct headers on route on error', () => {
+			const fakeKey = {fake: 'key'};
+			const limit = {
+				conformant: true,
+				size: 10,
+				remaining: 9,
+				ttl: Math.ceil(Date.now() / 1000) + 100
+			};
+			getKey.returns(fakeKey);
+			take.resolves(limit);
+			return promInject({
+					url: '/error'
 				}).then(response => {
 					response.headers.should.have.property('x-ratelimit-limit', limit.size);
 					response.headers.should.have.property('x-ratelimit-remaining', limit.remaining);
