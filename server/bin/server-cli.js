@@ -13,7 +13,7 @@ const joi           = require('joi');
 const pino          = require('pino');
 const validators    = require('../lib/validators.js');
 const server        = require('../lib/server.js');
-const db            = require('../lib/db.js');
+const Db            = require('../lib/db.js');
 const serializers   = require('../lib/serializers.js');
 const cleanInterval = require('../lib/clean-runner.js');
 const buckets       = {};
@@ -115,6 +115,8 @@ if (_.isEmpty(buckets)) {
 
 config.port = positiveInt(config.port, 'port');
 
+const db = Db({buckets, logger});
+
 if (config.cleanInterval !== undefined)  {
 	config.cleanInterval = positiveInt(config.cleanInterval, 'clean interval');
 	cleanInterval(db, logger, config.cleanInterval * 1000);
@@ -122,7 +124,7 @@ if (config.cleanInterval !== undefined)  {
 
 logger.debug({config, buckets});
 
-server.create(Object.assign(config, {logger, buckets, db: db({buckets, logger})}));
+server.create(Object.assign(config, {logger, buckets, db}));
 
 process.removeListener('uncaughtException', showUsageOnError);
 
