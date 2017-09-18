@@ -47,6 +47,7 @@ const register = function (server, options, next) {
 				const error = boom.tooManyRequests(settings.message);
 				return reply(error);
 			}).catch(e => {
+				request.log(['error'], e);
 				if (settings.onError) {
 					return settings.onError(request, reply, e);
 				}
