@@ -18,13 +18,6 @@ Ralphi currently has 3 independent npm modules to it
 - [ralphi-client](https://github.com/yonjah/ralphi/blob/master/client/README.md) - client to easily query the server
 - [hapi-ralphi](https://github.com/yonjah/ralphi/blob/master/hapi-plugin/README.md) - [hapi.js](https://github.com/hapi/hapi) plugin to easily add reate limiting to hapi 
 
-## Table of Contents
-- [Installation](#installation)
-- [Features](#features)
-- [Documentation](#documentation)
-- [Responsible disclosure](#responsible-disclosure)
-- [Resources](#resources)
-
 ## Installation
 
 ```bash
