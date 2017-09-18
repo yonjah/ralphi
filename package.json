@@ -21,7 +21,15 @@
     "install-submodules": "npm run install-server &&  npm run install-client && npm run install-hapi-plugin",
     "install-server": "cd server && npm install",
     "install-client": "cd client && npm install",
-    "install-hapi-plugin": "cd hapi-plugin && npm install"
+    "install-hapi-plugin": "cd hapi-plugin && npm install",
+    "version": "npm run version-server &&  npm run version-client && npm run version-hapi-plugin",
+    "version-server": "cd server && npm version $npm_package_version",
+    "version-client": "cd client && npm version $npm_package_version",
+    "version-hapi-plugin": "cd hapi-plugin && npm version $npm_package_version",
+    "publish": "npm run publish-server &&  npm run publish-client && npm run publish-hapi-plugin",
+    "publish-server": "cd server && npm publish",
+    "publish-client": "cd client && npm publish",
+    "publish-hapi-plugin": "cd hapi-plugin && npm publish"
   },
   "repository": {
     "type": "git",
