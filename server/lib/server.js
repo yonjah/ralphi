@@ -28,8 +28,8 @@ module.exports = {
 			},
 			handler (req, reply) {
 				const {bucket, key} = req.params;
-				logger.info({req, bucket, key});
 				const res = db.take(bucket, key);
+				logger.info({req, bucket, key, res});
 				reply(res);
 			}
 		});
@@ -47,8 +47,9 @@ module.exports = {
 			},
 			handler (req, reply) {
 				const {bucket, key} = req.params;
-				logger.info({req, bucket, key});
-				reply(db.reset(bucket, key));
+				const res = db.reset(bucket, key);
+				logger.info({req, bucket, key, res});
+				reply(res);
 			}
 		});
 
