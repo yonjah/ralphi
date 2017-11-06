@@ -21,6 +21,19 @@ describe('integration', () => {
 	before(cb => {
 		let ready = 0;
 
+		function done (err) {
+			if (err) {
+				ready = 2;
+				return cb(err);
+			} else {
+				ready += 1;
+				if (ready == 2) {
+					return cb();
+				}
+
+			}
+		}
+
 		ralphiCli = spawn(binPath, [`slow,1,${slowTtl}ms`, `fast,1,${fastTtl}ms`]);
 		ralphiCli.stderr.on('data', data => {
 			throw new Error(data.toString());
@@ -34,43 +47,77 @@ describe('integration', () => {
 			}
 		});
 
-		apiServer = new hapi.Server();
-		apiServer.connection({port});
-
 		client = new Client();
 
-		apiServer.register({register: plugin, options: {client}});
-		apiServer.route({
-			method: 'GET',
-			path: '/slow',
-			config: {
-				plugins: {
-					ralphi: {bucket: 'slow'}
+		try {
+			apiServer = new hapi.Server({port});
+			apiServer.route({
+				method: 'GET',
+				path: '/slow',
+				config: {
+					plugins: {
+						ralphi: {bucket: 'slow'}
+					}
+				},
+				handler () {
+					return 'Success';
 				}
-			},
-			handler (request, reply) {
-				reply(null, 'Success');
-			}
-		});
-		apiServer.route({
-			method: 'GET',
-			path: '/fast',
-			config: {
-				plugins: {
-					ralphi: {bucket: 'fast'}
+			});
+			apiServer.route({
+				method: 'GET',
+				path: '/fast',
+				config: {
+					plugins: {
+						ralphi: {bucket: 'fast'}
+					}
+				},
+				handler () {
+					return 'Success';
 				}
-			},
-			handler (request, reply) {
-				reply(null, 'Success');
-			}
-		});
-		apiServer.start(done);
+			});
+			apiServer.register({plugin, options: {client}})
+				.then(() => apiServer.start())
+				.then(() => done())
+				.catch(e => done(e));
 
-		function done () {
-			ready += 1;
-			if (ready == 2) {
-				return cb();
-			}
+		} catch (e) {
+			apiServer = new hapi.Server();
+			apiServer.connection({port});
+
+
+			apiServer.route({
+				method: 'GET',
+				path: '/slow',
+				config: {
+					plugins: {
+						ralphi: {bucket: 'slow'}
+					}
+				},
+				handler (request, reply) {
+					reply(null, 'Success');
+				}
+			});
+			apiServer.route({
+				method: 'GET',
+				path: '/fast',
+				config: {
+					plugins: {
+						ralphi: {bucket: 'fast'}
+					}
+				},
+				handler (request, reply) {
+					reply(null, 'Success');
+				}
+			});
+
+			apiServer.register({register: plugin, options: {client}}, err => {
+				if (err) {
+					throw err;
+				}
+
+				apiServer.start(done);
+			});
+
 		}
 	});
 

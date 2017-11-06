@@ -72,8 +72,8 @@ describe('hapi-plugin', () => {
 				.throw(/\[1\] "errorDelay" must be larger than or equal to 1/);
 		});
 
-		it('should register to the correct request lifecycle on server and call the reply callback', () => {
-			const server = {ext: sinon.spy()};
+		it('should register to the correct request lifecycle on server and call the reply callback on hapi v16', () => {
+			const server = {ext: sinon.spy(), version: '16.0.0'};
 			const cb = sinon.spy();
 			const client = {take: (x, y) => y, reset: (x, y) => y};
 
@@ -89,6 +89,25 @@ describe('hapi-plugin', () => {
 			server.ext.should.be.calledWith('onPreResponse');
 
 			cb.should.be.calledTwice();
+		});
+
+		it('should register to the correct request lifecycle on server and call the reply callback on hapi v17', () => {
+			const server = {ext: sinon.spy(), version: '17.0.0'};
+			const cb = sinon.spy();
+			const client = {take: (x, y) => y, reset: (x, y) => y};
+
+			plugin.register(server, {client});
+			server.ext.should.be.calledTwice();
+			server.ext.should.be.calledWith('onPreHandler');
+			server.ext.should.be.calledWith('onPreResponse');
+
+			server.ext.reset();
+			plugin.register(server, {client, ext: 'onPostAuth'}, cb);
+			server.ext.should.be.calledTwice();
+			server.ext.should.be.calledWith('onPostAuth');
+			server.ext.should.be.calledWith('onPreResponse');
+
+			cb.should.not.be.called();
 		});
 	});
 
@@ -187,9 +206,9 @@ describe('hapi-plugin', () => {
 			return promInject({
 					url: '/limit'
 				}).then(response => {
-					response.headers.should.have.property('x-ratelimit-limit', limit.size);
-					response.headers.should.have.property('x-ratelimit-remaining', limit.remaining);
-					response.headers.should.have.property('x-ratelimit-reset', limit.ttl);
+					should(response.headers).have.property('x-ratelimit-limit', limit.size);
+					should(response.headers).have.property('x-ratelimit-remaining', limit.remaining);
+					should(response.headers).have.property('x-ratelimit-reset', limit.ttl);
 				});
 		});
 
@@ -206,9 +225,9 @@ describe('hapi-plugin', () => {
 			return promInject({
 					url: '/error'
 				}).then(response => {
-					response.headers.should.have.property('x-ratelimit-limit', limit.size);
-					response.headers.should.have.property('x-ratelimit-remaining', limit.remaining);
-					response.headers.should.have.property('x-ratelimit-reset', limit.ttl);
+					should(response.headers).have.property('x-ratelimit-limit', limit.size);
+					should(response.headers).have.property('x-ratelimit-remaining', limit.remaining);
+					should(response.headers).have.property('x-ratelimit-reset', limit.ttl);
 				});
 		});
 
@@ -227,9 +246,9 @@ describe('hapi-plugin', () => {
 				}).then(response => {
 					limitCount.should.be.eql(0);
 					response.statusCode.should.be.eql(429);
-					response.headers.should.have.property('x-ratelimit-limit', limit.size);
-					response.headers.should.have.property('x-ratelimit-remaining', limit.remaining);
-					response.headers.should.have.property('x-ratelimit-reset', limit.ttl);
+					should(response.headers).have.property('x-ratelimit-limit', limit.size);
+					should(response.headers).have.property('x-ratelimit-remaining', limit.remaining);
+					should(response.headers).have.property('x-ratelimit-reset', limit.ttl);
 				});
 		});
 
@@ -243,9 +262,9 @@ describe('hapi-plugin', () => {
 				}).then(response => {
 					limitCount.should.be.eql(0);
 					response.statusCode.should.be.eql(429);
-					response.headers.should.have.property('x-ratelimit-limit', 1);
-					response.headers.should.have.property('x-ratelimit-remaining', 0);
-					response.headers.should.have.property('x-ratelimit-reset', Math.ceil(Date.now() / 1000) + 60);
+					should(response.headers).have.property('x-ratelimit-limit', 1);
+					should(response.headers).have.property('x-ratelimit-remaining', 0);
+					should(response.headers).have.property('x-ratelimit-reset', Math.ceil(Date.now() / 1000) + 60);
 					response.request.response._error.should.be.eql(error);
 					response.result.message.should.not.match(new RegExp(error.message));
 				});
@@ -272,9 +291,9 @@ describe('hapi-plugin', () => {
 			return promInject({
 					url: '/no-limit'
 				}).then(response => {
-					response.headers.should.not.have.property('x-ratelimit-limit');
-					response.headers.should.not.have.property('x-ratelimit-remaining');
-					response.headers.should.not.have.property('x-ratelimit-reset');
+					should(response.headers).not.have.property('x-ratelimit-limit');
+					should(response.headers).not.have.property('x-ratelimit-remaining');
+					should(response.headers).not.have.property('x-ratelimit-reset');
 				});
 		});
 
@@ -309,6 +328,9 @@ describe('hapi-plugin', () => {
 					message,
 					onError: (req, reply, e) => {
 						onError(req, reply, e);
+						if (typeof reply.continue !== 'function') {
+							return reply.continue;
+						}
 						reply.continue();
 					},
 					bucket
@@ -392,9 +414,9 @@ describe('hapi-plugin', () => {
 			return promInject({
 					url: '/otherLimit'
 				}).then(response => {
-					response.headers.should.not.have.property('x-ratelimit-limit');
-					response.headers.should.not.have.property('x-ratelimit-remaining');
-					response.headers.should.not.have.property('x-ratelimit-reset');
+					should(response.headers).not.have.property('x-ratelimit-limit');
+					should(response.headers).not.have.property('x-ratelimit-remaining');
+					should(response.headers).not.have.property('x-ratelimit-reset');
 				});
 		});
 
@@ -407,9 +429,9 @@ describe('hapi-plugin', () => {
 			return promInject({
 					url: '/otherLimit'
 				}).then(response => {
-					response.headers.should.not.have.property('x-ratelimit-limit');
-					response.headers.should.not.have.property('x-ratelimit-remaining');
-					response.headers.should.not.have.property('x-ratelimit-reset');
+					should(response.headers).not.have.property('x-ratelimit-limit');
+					should(response.headers).not.have.property('x-ratelimit-remaining');
+					should(response.headers).not.have.property('x-ratelimit-reset');
 				});
 		});
 
@@ -426,9 +448,9 @@ describe('hapi-plugin', () => {
 			return promInject({
 					url: '/otherLimit'
 				}).then(response => {
-					response.headers.should.not.have.property('x-ratelimit-limit');
-					response.headers.should.not.have.property('x-ratelimit-remaining');
-					response.headers.should.not.have.property('x-ratelimit-reset');
+					should(response.headers).not.have.property('x-ratelimit-limit');
+					should(response.headers).not.have.property('x-ratelimit-remaining');
+					should(response.headers).not.have.property('x-ratelimit-reset');
 				});
 		});
 
