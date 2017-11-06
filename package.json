@@ -1,6 +1,6 @@
 {
   "name": "ralphi-monorepo",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Rate limiting api server",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",

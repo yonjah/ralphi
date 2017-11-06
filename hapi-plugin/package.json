@@ -1,6 +1,6 @@
 {
   "name": "hapi-ralphi",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Rate limiting plugin for hapi",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
@@ -37,7 +37,7 @@
   },
   "peerDependencies": {
     "hapi": ">= 16",
-    "ralphi-client": ">= 0.1.3"
+    "ralphi-client": ">= 1.0.0"
   },
   "dependencies": {
     "boom": "^7.1.0",
