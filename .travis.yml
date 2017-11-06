@@ -11,7 +11,7 @@ cache:
 script:
   - 'if [ $HAPI_VERSION ]; then npm install hapi@^$HAPI_VERSION.0.0 || echo "done"; fi'
   - "if [ $LINT ]; then npm run lint; fi"
-  - "if [ $COVERAGE ]; then npm run cover && npm install hapi@17.0.0 && npm run cover && bash <(curl -s https://codecov.io/bash) -f coverage/lcov.info; fi"
+  - "if [ $COVERAGE ]; then npm run multiClean && npm run multiCover && npm install hapi@17.0.0 && npm run multiCover && npm run multiReport && bash <(curl -s https://codecov.io/bash) -f coverage/lcov.info; fi"
   - "if [ $RUN_TEST ]; then npm run test; fi"
 
 jobs:
