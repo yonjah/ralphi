@@ -9,27 +9,43 @@ cache:
     - node_modules
 
 script:
+  - 'if [ $HAPI_VERSION ]; then npm install hapi@^$HAPI_VERSION.0.0 || echo "done"; fi'
   - "if [ $LINT ]; then npm run lint; fi"
-  - "if [ $COVERAGE ]; then npm run cover && bash <(curl -s https://codecov.io/bash) -f coverage/lcov.info; fi"
+  - "if [ $COVERAGE ]; then npm run cover && npm install hapi@17.0.0 && npm run cover && bash <(curl -s https://codecov.io/bash) -f coverage/lcov.info; fi"
   - "if [ $RUN_TEST ]; then npm run test; fi"
 
 jobs:
   include:
     - stage: tests
       node_js: 6
-      env: RUN_TEST=true
+      env:
+        - RUN_TEST=true
     - stage: tests
       node_js: 7
-      env: RUN_TEST=true
+      env:
+        - RUN_TEST=true
     - stage: tests
       node_js: 8
-      env: RUN_TEST=true
+      env:
+        - RUN_TEST=true
+    - stage: tests
+      node_js: 8
+      env:
+        - RUN_TEST=true
+    - stage: tests
+      node_js: 8
+      env:
+        - RUN_TEST=true
+        - HAPI_VERSION=17
     - stage: tests
       node_js: node
-      env: RUN_TEST=true
+      env:
+        - RUN_TEST=true
+        - HAPI_VERSION=17
     - stage: coverage
-      node_js: 6
-      env: COVERAGE=true
+      node_js: 8
+      env:
+        - COVERAGE=true
     - stage: lint
       node_js: 6
       env: LINT=true

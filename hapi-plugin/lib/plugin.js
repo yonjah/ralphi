@@ -26,7 +26,90 @@ function getRequestIP (request) {
 	return request.info.remoteAddress;
 }
 
-const register = function (server, options, next) {
+function register (server, options, next) {
+	if (server.version && server.version.split('.', 1) < 17) {
+		return registerLegacy(server, options, next);
+	}
+
+	options = joi.attempt(options, optionsSchema, 'options');
+	const client = options.client;
+
+
+	server.ext(options.ext, (request, h) => {
+		const settings = getSettings(request.route.settings.plugins.ralphi);
+		if (!settings) {
+			return h.continue;
+		}
+
+		return client.take(settings.bucket, settings.getKey(request))
+			.then(limit => {
+				request.plugins.ralphi = limit;
+				request.plugins.ralphi.addHeaders = settings.addHeaders;
+				if (limit.conformant) {
+					return h.continue;
+				}
+
+				const error = boom.tooManyRequests(settings.message);
+				throw error;
+			}, e => {
+				request.log(['error'], e);
+				if (settings.onError) {
+					return settings.onError(request, h, e);
+				}
+
+				request.plugins.ralphi = {
+					conformant: false,
+					size: settings.errorSize,
+					remaining: 0,
+					ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay,
+					error: e
+				};
+				const error = boom.boomify(e, {statusCode: 429});
+				error.output.payload.message = settings.message;
+				throw error;
+			});
+
+	});
+
+	server.ext('onPreResponse', (request, h) => {
+		const response = request.response;
+		const limit    = request.plugins.ralphi;
+		const settings = getSettings(request.route.settings.plugins.ralphi);
+		if (!settings || !settings.addHeaders || !limit) {
+			return h.continue;
+		}
+
+		if (response.isBoom) {
+			response.output.headers['X-RateLimit-Limit'] = limit.size;
+			response.output.headers['X-RateLimit-Remaining'] = limit.remaining;
+			response.output.headers['X-RateLimit-Reset'] = limit.ttl;
+			return h.continue;
+		}
+
+		response.header('X-RateLimit-Limit', limit.size);
+		response.header('X-RateLimit-Remaining', limit.remaining);
+		response.header('X-RateLimit-Reset', limit.ttl);
+		return h.continue;
+	});
+
+	function getSettings (routeSettings) {
+		if (routeSettings === false || (!routeSettings && !options.allRoutes)) {
+			return false;
+		}
+
+		if (routeSettings) {
+			return Object.assign({}, options, routeSettings);
+		}
+
+		return options;
+	}
+}
+
+register.attributes = {
+	pkg: require('../package.json')
+};
+
+function registerLegacy (server, options, next) {
 	options = joi.attempt(options, optionsSchema, 'options');
 	const client = options.client;
 
@@ -100,10 +183,6 @@ const register = function (server, options, next) {
 	}
 
 	return next();
-};
+}
 
-register.attributes = {
-	pkg: require('../package.json')
-};
-
-module.exports = {register};
+module.exports = {register, pkg: require('../package.json')};
