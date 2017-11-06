@@ -41,6 +41,25 @@ server.route({
     })
 ```
 
+Or if your using hapi v17  and up
+```js
+await server.register({plugin, options: {client}})
+server.route({
+        method: 'POST',
+        path: '/login',
+        config: {
+            plugins: {
+                ralphi: {
+                    bucket: 'login'
+                }
+            }
+        },
+        handler () {
+            return 'Success';
+        }
+    })
+```
+
 `login` root will be rate limited according to the bucket settings, and rate limiting headers will be sent with the response.
 
 ## Configuration Options
