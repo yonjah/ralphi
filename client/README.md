@@ -1,8 +1,9 @@
 # Ralphi
 
-[![npm version](https://img.shields.io/npm/v/ralphi.svg)](https://www.npmjs.com/package/ralphi)
+[![npm version](https://img.shields.io/npm/v/ralphi-client.svg)](https://www.npmjs.com/package/ralphi-client)
 [![Build Status](https://travis-ci.org/yonjah/ralphi.svg?branch=master)](https://travis-ci.org/yonjah/ralphi)
 [![codecov](https://codecov.io/gh/yonjah/ralphi/branch/master/graph/badge.svg)](https://codecov.io/gh/yonjah/ralphi)
+[![Known Vulnerabilities](https://snyk.io/test/npm/ralphi-client/badge.svg)](https://snyk.io/test/npm/ralphi-client)
 [![License](https://img.shields.io/npm/l/ralphi.svg?maxAge=2592000?style=plastic)](https://github.com/yonjah/ralphi/blob/master/LICENSE)
 
 `Ralphi` is a simple rate limiting server intended to prevent bruteforce attacks on logins and other sensitive assets.
