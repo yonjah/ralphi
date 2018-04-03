@@ -27,9 +27,6 @@ function getRequestIP (request) {
 }
 
 function register (server, options, next) {
-	if (server.version && server.version.split('.', 1) < 17) {
-		return registerLegacy(server, options, next);
-	}
 
 	options = joi.attempt(options, optionsSchema, 'options');
 	const client = options.client;
@@ -103,86 +100,6 @@ function register (server, options, next) {
 
 		return options;
 	}
-}
-
-register.attributes = {
-	pkg: require('../package.json')
-};
-
-function registerLegacy (server, options, next) {
-	options = joi.attempt(options, optionsSchema, 'options');
-	const client = options.client;
-
-	server.ext(options.ext, (request, reply) => {
-		const settings = getSettings(request.route.settings.plugins.ralphi);
-		if (!settings) {
-			return reply.continue();
-		}
-
-		client.take(settings.bucket, settings.getKey(request))
-			.then(limit => {
-				request.plugins.ralphi = limit;
-				request.plugins.ralphi.addHeaders = settings.addHeaders;
-				if (limit.conformant) {
-					return reply.continue();
-				}
-
-				const error = boom.tooManyRequests(settings.message);
-				return reply(error);
-			}).catch(e => {
-				request.log(['error'], e);
-				if (settings.onError) {
-					return settings.onError(request, reply, e);
-				}
-
-				request.plugins.ralphi = {
-					conformant: false,
-					size: settings.errorSize,
-					remaining: 0,
-					ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay,
-					error: e
-				};
-				const error = boom.boomify(e, {statusCode: 429});
-				error.output.payload.message = settings.message;
-				return reply(error);
-			});
-
-	});
-
-	server.ext('onPreResponse', (request, reply) => {
-		const response = request.response;
-		const limit    = request.plugins.ralphi;
-		const settings = getSettings(request.route.settings.plugins.ralphi);
-		if (!settings || !settings.addHeaders || !limit) {
-			return reply.continue();
-		}
-
-		if (response.isBoom) {
-			response.output.headers['X-RateLimit-Limit'] = limit.size;
-			response.output.headers['X-RateLimit-Remaining'] = limit.remaining;
-			response.output.headers['X-RateLimit-Reset'] = limit.ttl;
-			return reply.continue();
-		}
-
-		response.header('X-RateLimit-Limit', limit.size);
-		response.header('X-RateLimit-Remaining', limit.remaining);
-		response.header('X-RateLimit-Reset', limit.ttl);
-		return reply.continue();
-	});
-
-	function getSettings (routeSettings) {
-		if (routeSettings === false || (!routeSettings && !options.allRoutes)) {
-			return false;
-		}
-
-		if (routeSettings) {
-			return Object.assign({}, options, routeSettings);
-		}
-
-		return options;
-	}
-
-	return next();
 }
 
 module.exports = {register, pkg: require('../package.json')};

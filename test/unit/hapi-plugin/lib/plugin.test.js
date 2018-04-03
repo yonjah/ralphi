@@ -18,13 +18,6 @@ describe('hapi-plugin', () => {
 			plugin.register.should.have.length(3);
 		});
 
-		it('should have attributes property', () => {
-			plugin.register.should.have.property('attributes');
-			plugin.register.attributes.should.have.property('pkg');
-			plugin.register.attributes.pkg.should.have.property('name');
-			plugin.register.attributes.pkg.should.have.property('version');
-		});
-
 		it('should validate options', () => {
 			const arity2 = (x, y) => y;
 
@@ -72,24 +65,6 @@ describe('hapi-plugin', () => {
 				.throw(/\[1\] "errorDelay" must be larger than or equal to 1/);
 		});
 
-		it('should register to the correct request lifecycle on server and call the reply callback on hapi v16', () => {
-			const server = {ext: sinon.spy(), version: '16.0.0'};
-			const cb = sinon.spy();
-			const client = {take: (x, y) => y, reset: (x, y) => y};
-
-			plugin.register(server, {client}, cb);
-			server.ext.should.be.calledTwice();
-			server.ext.should.be.calledWith('onPreHandler');
-			server.ext.should.be.calledWith('onPreResponse');
-
-			server.ext.reset();
-			plugin.register(server, {client, ext: 'onPostAuth'}, cb);
-			server.ext.should.be.calledTwice();
-			server.ext.should.be.calledWith('onPostAuth');
-			server.ext.should.be.calledWith('onPreResponse');
-
-			cb.should.be.calledTwice();
-		});
 
 		it('should register to the correct request lifecycle on server and call the reply callback on hapi v17', () => {
 			const server = {ext: sinon.spy(), version: '17.0.0'};
