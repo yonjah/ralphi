@@ -21,7 +21,7 @@ describe('serializers', () => {
 		now = Date.now();
 		clock = lolex.install({now, toFake:['setInterval']});
 		db.clean.reset();
-		logger.warn.reset();
+		logger.warn.resetHistory();
 	});
 
 	afterEach(() => {

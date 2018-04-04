@@ -9,10 +9,10 @@ const server = requireSrc('server');
 
 describe('server', () => {
 	const db = {
-		query: sinon.stub(),
-		take: sinon.stub(),
-		reset: sinon.stub(),
-		clean: sinon.stub()
+		query: sinon.stub().returns({query: 'fake'}),
+		take: sinon.stub().returns({take: 'fake'}),
+		reset: sinon.stub().returns({reset: 'fake'}),
+		clean: sinon.stub().returns({clean: 'fake'})
 	};
 	const logger = {
 		debug: sinon.spy(),
@@ -32,8 +32,8 @@ describe('server', () => {
 	});
 
 	beforeEach(() => {
-		_.map(db, method => method.reset());
-		_.map(logger, method => method.reset());
+		_.map(db, method => method.resetHistory());
+		_.map(logger, method => method.resetHistory());
 	});
 
 	after(() => instance.stop());
@@ -41,7 +41,7 @@ describe('server', () => {
 	it('should pass get request to db.query', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		const query = {query: 'fake'};
+		const query = {query: 'super fake'};
 
 		db.query.returns(query);
 

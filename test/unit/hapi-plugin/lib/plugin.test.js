@@ -80,7 +80,7 @@ describe('hapi-plugin', () => {
 			server.ext.should.be.calledWith('onPreHandler');
 			server.ext.should.be.calledWith('onPreResponse');
 
-			server.ext.reset();
+			server.ext.resetHistory();
 			plugin.register(server, {client, ext: 'onPostAuth'}, cb);
 			server.ext.should.be.calledTwice();
 			server.ext.should.be.calledWith('onPostAuth');
