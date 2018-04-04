@@ -68,6 +68,7 @@ server.route({
 - _ext String default(onPreHandler)_ - request flow hook when plugin should check rate limiting can be one of ('onPreAuth', 'onPostAuth', 'onPreHandler')
 - _allRoutes Boolean default(false)_ - if true rate limiting will be enabled by default on all routes
 - _bucket String_ bucket to use for rate limiting (**required** when _allRoutes_ is true)
+- _countSuccess Boolean default(true)_ - if true request are counted even if they are successful, when set to false only request that result in an error will be counted toward rate limiting.
 - _getKey Function(request)_ - A Function that will get the unique client key out of the request object. By default `request.info.remoteAddress` is used.
 - _addHeaders Boolean default(true)_ - Add the headers 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset' for routes that enable rate liming
 - _message String default('you have exceeded your request limit')_ - Error message in case limit has exceeded

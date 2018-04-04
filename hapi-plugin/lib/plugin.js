@@ -8,12 +8,14 @@ const boom = require('boom');
 
 const optionsSchema = joi.object().keys({
 	client: joi.object().keys({
+		query: joi.func().arity(2).required(),
 		take: joi.func().arity(2).required(),
 		reset: joi.func().arity(2).required()
 	}).unknown().required(),
 	ext: joi.string().valid(['onPreAuth', 'onPostAuth', 'onPreHandler']).default('onPreHandler'),
 	allRoutes: joi.boolean().default(false),
 	bucket: joi.string().alphanum(),
+	countSuccess: joi.boolean().default(true),
 	addHeaders: joi.boolean().default(true),
 	message: joi.string().default('you have exceeded your request limit'),
 	onError: joi.func().arity(3),
@@ -26,52 +28,66 @@ function getRequestIP (request) {
 	return request.info.remoteAddress;
 }
 
-function register (server, options, next) {
+function register (server, options, next) { // eslint-disable-line no-unused-vars
 
 	options = joi.attempt(options, optionsSchema, 'options');
 	const client = options.client;
 
 
-	server.ext(options.ext, (request, h) => {
+	server.ext(options.ext, async (request, h) => {
+		let limit;
 		const settings = getSettings(request.route.settings.plugins.ralphi);
+
 		if (!settings) {
 			return h.continue;
 		}
 
-		return client.take(settings.bucket, settings.getKey(request))
-			.then(limit => {
-				request.plugins.ralphi = limit;
-				request.plugins.ralphi.addHeaders = settings.addHeaders;
-				if (limit.conformant) {
-					return h.continue;
-				}
+		try {
+			if (settings.countSuccess) {
+				limit = await client.take(settings.bucket, settings.getKey(request));
+			} else {
+				limit = await client.query(settings.bucket, settings.getKey(request));
+			}
+		} catch (e) {
+			request.log(['error'], e);
+			if (settings.onError) {
+				return settings.onError(request, h, e);
+			}
 
-				const error = boom.tooManyRequests(settings.message);
-				throw error;
-			}, e => {
-				request.log(['error'], e);
-				if (settings.onError) {
-					return settings.onError(request, h, e);
-				}
+			request.plugins.ralphi = {
+				conformant: false,
+				size: settings.errorSize,
+				remaining: 0,
+				ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay,
+				error: e
+			};
+			const error = boom.boomify(e, {statusCode: 429});
+			error.output.payload.message = settings.message;
+			throw error;
+		}
 
-				request.plugins.ralphi = {
-					conformant: false,
-					size: settings.errorSize,
-					remaining: 0,
-					ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay,
-					error: e
-				};
-				const error = boom.boomify(e, {statusCode: 429});
-				error.output.payload.message = settings.message;
-				throw error;
-			});
+		request.plugins.ralphi = limit;
+		request.plugins.ralphi.addHeaders = settings.addHeaders;
+		if (limit.conformant) {
+			return h.continue;
+		}
 
+		const error = boom.tooManyRequests(settings.message);
+		throw error;
 	});
 
-	server.ext('onPreResponse', (request, h) => {
+	server.ext('onPreResponse', async (request, h) => {
 		const response = request.response;
-		const limit    = request.plugins.ralphi;
 		const settings = getSettings(request.route.settings.plugins.ralphi);
+		let limit    = request.plugins.ralphi;
+		if (settings && !settings.countSuccess && response.isBoom && (!limit || limit.conformant)) { //take one token if we only count failed request and request did not fail do to rate limiting
+			try {
+				limit = await client.take(settings.bucket, settings.getKey(request));
+			} catch (e) {
+				request.log(['error'], e);
+			}
+		}
+
 		if (!settings || !settings.addHeaders || !limit) {
 			return h.continue;
 		}
