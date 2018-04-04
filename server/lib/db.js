@@ -76,6 +76,22 @@ function raplhDB (conf = {}) {
 					}).then(() => bucket.storage.size);
 				}));
 		},
+		query (bucketName, key) {
+			logger.debug({msg: 'query', bucket: bucketName, key});
+			const bucket = buckets.get(bucketName);
+			if (!bucket) {
+				throw new Error(`Could not find bucket ${bucketName}`);
+			}
+			let record = bucket.storage.get(key);
+			if (!record || record.ttl < Date.now()) {
+				record = {
+					ttl: Date.now() + bucket.ttl,
+					remaining: bucket.size
+				};
+				logger.debug({msg: 'query new record', record});
+			}
+			return Object.assign({conformant: record.remaining !== 0, size: bucket.size}, record);
+		},
 		take (bucketName, key) {
 			logger.debug({msg: 'take', bucket: bucketName, key});
 			const bucket = buckets.get(bucketName);

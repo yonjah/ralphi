@@ -43,12 +43,18 @@ client.take('login', ip)
 
 ## API
 Ralphi Client is using a Promise API all methods return Promises
-- _take(bucket String, key String)`_ - remove a request from for key associated with bucket. 
-    Will return an object containing the following properties -
-    - _conformant Boolean_ - if true record had remaining request. if false request should not be accepted.
+- _take(bucket String, key String)`_ - remove one request token for key associated with bucket.
+    Returns an object containing the following properties -
+    - _conformant Boolean_ - true if record had remaining request tokens and can be accepted. false if request did not have any tokens left and should not be accepted.
     - _remaining Integer_  - the amount of requests that can still be made in the current time frame
     - _ttl Integer_ - UNIX timestamp indicating when more requests will be available
-    - _size Integer_ - Total request available in each time frame
+    - _size Integer_ - Total number of request tokens available in each time frame
+- _query(bucket String, key String)`_ - similar to take but will only query rate limit stats without removing any tokens.
+    Returns an object containing the following properties -
+    - _conformant Boolean_ - true if record had remaining request tokens and can be accepted. false if request did not have any tokens left and should not be accepted.
+    - _remaining Integer_  - the amount of requests that can still be made in the current time frame
+    - _ttl Integer_ - UNIX timestamp indicating when more requests will be available
+    - _size Integer_ - Total number of request tokens available in each time frame
 - _reset(bucket String, key String)_ - remove a single record from the bucket.
     Removing a record means next request with the same key will get a fresh record with maximum available requests. 
     returns `true` if record existed and `false` if it wasn't

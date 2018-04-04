@@ -43,6 +43,63 @@ describe('db', () => {
 		dbi.reset.should.be.Function();
 	});
 
+	describe('query', () => {
+		const dbi = db({
+			logger,
+			buckets
+		});
+
+		let now, clock;
+
+		beforeEach(() => {
+			now = Date.now();
+			clock = lolex.install({now, toFake:['Date']});
+		});
+
+		afterEach(() => {
+			clock.uninstall();
+		});
+
+
+		it('should return new record without removing any tokens', () => {
+			const name   = 'fast10';
+			const bucket = buckets[name];
+			const key    = uid();
+			const takeResult = {
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			};
+			dbi.query(name, key).should.be.eql(takeResult);
+			dbi.query(name, key).should.be.eql(takeResult);
+		});
+
+		it('should return existing record without removing any tokens', () => {
+			const name = 'fast10';
+			const bucket = buckets[name];
+			const key = uid();
+			let takeResult = dbi.take(name, key);
+			dbi.query(name, key).should.be.eql(takeResult);
+			dbi.query(name, key).should.be.eql(takeResult);
+			for (let i = bucket.size; i > 0; i -= 1) {
+				takeResult =  dbi.take(name, key);
+				if (takeResult.remaining === 0) {
+					dbi.query(name, key).should.be.eql(Object.assign({}, takeResult, {conformant: false}));
+					takeResult = dbi.take(name, key);
+					break;
+				}
+			}
+			dbi.query(name, key).should.be.eql(takeResult);
+		});
+
+		it('should fail if bucket does not exist', () => {
+			const name = 'nonExist';
+			const key = uid();
+			should(dbi.query.bind(dbi, name, key)).throw(`Could not find bucket ${name}`);
+		});
+	});
+
 	describe('take', () => {
 		const dbi = db({
 			logger,

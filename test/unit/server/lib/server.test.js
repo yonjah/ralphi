@@ -9,6 +9,7 @@ const server = requireSrc('server');
 
 describe('server', () => {
 	const db = {
+		query: sinon.stub(),
 		take: sinon.stub(),
 		reset: sinon.stub(),
 		clean: sinon.stub()
@@ -49,7 +50,39 @@ describe('server', () => {
 
 	after(() => instance.stop());
 
-	it('should pass get request to db.take', () => {
+	it('should pass get request to db.query', () => {
+		const bucket = 'test';
+		const key = uid().toString();
+		const query = {query: 'fake'};
+
+		db.query.returns(query);
+
+		return promInject({
+				method: 'GET',
+				url: `/${bucket}/${key}`
+			}).then(res => {
+				db.query.should.be.calledOnce();
+				db.query.should.be.calledWith(bucket, key);
+				res.result.should.be.eql(query);
+			});
+	});
+
+	it('should log request to db.query', () => {
+		const bucket = 'test';
+		const key = uid().toString();
+		return promInject({
+				method: 'GET',
+				url: `/${bucket}/${key}`
+			}).then(() => {
+				logger.info.should.be.calledOnce();
+				const log = logger.info.args[0][0];
+				log.should.have.property('req');
+				log.should.have.property('bucket', bucket);
+				log.should.have.property('key', key);
+			});
+	});
+
+	it('should pass post request to db.take', () => {
 		const bucket = 'test';
 		const key = uid().toString();
 		const take = {take: 'fake'};
@@ -57,7 +90,7 @@ describe('server', () => {
 		db.take.returns(take);
 
 		return promInject({
-				method: 'GET',
+				method: 'POST',
 				url: `/${bucket}/${key}`
 			}).then(res => {
 				db.take.should.be.calledOnce();
@@ -70,7 +103,7 @@ describe('server', () => {
 		const bucket = 'test';
 		const key = uid().toString();
 		return promInject({
-				method: 'GET',
+				method: 'POST',
 				url: `/${bucket}/${key}`
 			}).then(() => {
 				logger.info.should.be.calledOnce();

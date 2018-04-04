@@ -28,6 +28,25 @@ module.exports = {
 			},
 			handler (req, reply) {
 				const {bucket, key} = req.params;
+				const res = db.query(bucket, key);
+				logger.info({req, bucket, key, res});
+				reply(res);
+			}
+		});
+
+		server.route({
+			method: 'POST',
+			path: '/{bucket}/{key}',
+			config: {
+				validate: {
+					params: {
+						bucket: validatorBucketName,
+						key: validators.key
+					}
+				}
+			},
+			handler (req, reply) {
+				const {bucket, key} = req.params;
 				const res = db.take(bucket, key);
 				logger.info({req, bucket, key, res});
 				reply(res);

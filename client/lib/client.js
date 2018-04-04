@@ -27,12 +27,27 @@ class RalphiClient {
 	 * @return {Promise<Object>}
 	 */
 	take (bucket, key) {
-		if (!bucket || typeof bucket !== 'string') {
-			throw new Error('Bucket must exist and be a string');
-		}
-		if (!key || typeof key !== 'string') {
-			throw new Error('Key must exist and be a string');
-		}
+		_validateApiCall(bucket, key);
+		return promHttpRequest({
+				method: 'POST',
+				host: this.settings.host,
+				port: this.settings.port,
+				path: `/${bucket}/${key}`
+			}).then(data => {
+				data = JSON.parse(data);
+				data.ttl = Math.ceil(data.ttl / 1000);
+				return data;
+			});
+	}
+
+	/**
+	 * Query key record without removing any tokens
+	 * @param  {String} bucket
+	 * @param  {String} key
+	 * @return {Promise<Object>}
+	 */
+	query (bucket, key) {
+		_validateApiCall(bucket, key);
 		return promHttpRequest({
 				method: 'GET',
 				host: this.settings.host,
@@ -52,12 +67,7 @@ class RalphiClient {
 	 * @return {Promise<Boolean>}
 	 */
 	reset (bucket, key) {
-		if (!bucket || typeof bucket !== 'string') {
-			throw new Error('Bucket must exist and be a string');
-		}
-		if (!key || typeof key !== 'string') {
-			throw new Error('Key must exist and be a string');
-		}
+		_validateApiCall(bucket, key);
 		return promHttpRequest({
 				method: 'DELETE',
 				host: this.settings.host,
@@ -81,6 +91,15 @@ class RalphiClient {
 			}).then(data => {
 				return data === 'true';
 			});
+	}
+}
+
+function _validateApiCall (bucket, key) {
+	if (!bucket || typeof bucket !== 'string') {
+		throw new Error('Bucket must exist and be a string');
+	}
+	if (!key || typeof key !== 'string') {
+		throw new Error('Key must exist and be a string');
 	}
 }
 
