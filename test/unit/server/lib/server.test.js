@@ -27,20 +27,8 @@ describe('server', () => {
 
 	let instance;
 
-	function promInject (data) {
-		return new Promise(resolve => {
-			instance.inject(data, res => {
-				resolve(res);
-			});
-		});
-
-	}
-
-	before(done => {
-		server.create({logger, buckets, port, host, db}, server => {
-			instance = server;
-			done();
-		});
+	before(async () => {
+		instance = await server.create({logger, buckets, port, host, db});
 	});
 
 	beforeEach(() => {
@@ -57,7 +45,7 @@ describe('server', () => {
 
 		db.query.returns(query);
 
-		return promInject({
+		return instance.inject({
 				method: 'GET',
 				url: `/${bucket}/${key}`
 			}).then(res => {
@@ -70,7 +58,7 @@ describe('server', () => {
 	it('should log request to db.query', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		return promInject({
+		return instance.inject({
 				method: 'GET',
 				url: `/${bucket}/${key}`
 			}).then(() => {
@@ -89,7 +77,7 @@ describe('server', () => {
 
 		db.take.returns(take);
 
-		return promInject({
+		return instance.inject({
 				method: 'POST',
 				url: `/${bucket}/${key}`
 			}).then(res => {
@@ -102,7 +90,7 @@ describe('server', () => {
 	it('should log request to db.take', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		return promInject({
+		return instance.inject({
 				method: 'POST',
 				url: `/${bucket}/${key}`
 			}).then(() => {
@@ -122,7 +110,7 @@ describe('server', () => {
 
 		db.reset.returns(reset);
 
-		return promInject({
+		return instance.inject({
 				method: 'DELETE',
 				url: `/${bucket}/${key}`
 			}).then(res => {
@@ -139,7 +127,7 @@ describe('server', () => {
 
 		db.reset.returns(reset);
 
-		return promInject({
+		return instance.inject({
 				method: 'DELETE',
 				url: `/${bucket}/${key}`
 			}).then(() => {
@@ -156,7 +144,7 @@ describe('server', () => {
 
 		db.clean.resolves(clean);
 
-		return promInject({
+		return instance.inject({
 				method: 'DELETE',
 				url: '/clean'
 			}).then(res => {
@@ -170,7 +158,7 @@ describe('server', () => {
 
 		db.clean.resolves(clean);
 
-		return promInject({
+		return instance.inject({
 				method: 'DELETE',
 				url: '/clean'
 			}).then(() => {

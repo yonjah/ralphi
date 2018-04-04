@@ -1,3 +1,5 @@
+---
+
 language: node_js
 
 branches:
@@ -17,10 +19,6 @@ script:
 jobs:
   include:
     - stage: tests
-      node_js: 6
-      env:
-        - RUN_TEST=true
-    - stage: tests
       node_js: 7
       env:
         - RUN_TEST=true
@@ -29,23 +27,22 @@ jobs:
       env:
         - RUN_TEST=true
     - stage: tests
-      node_js: 8
+      node_js: 9
       env:
         - RUN_TEST=true
-    - stage: tests
-      node_js: 8
-      env:
-        - RUN_TEST=true
-        - HAPI_VERSION=17
+    # - stage: tests
+    #   node_js: 8
+    #   env:
+    #     - RUN_TEST=true
+    #     - HAPI_VERSION=XX
     - stage: tests
       node_js: node
       env:
         - RUN_TEST=true
-        - HAPI_VERSION=17
     - stage: coverage
       node_js: 8
       env:
         - COVERAGE=true
     - stage: lint
-      node_js: 6
+      node_js: 8
       env: LINT=true

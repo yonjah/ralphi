@@ -140,7 +140,7 @@ describe('integration', () => {
 					return promHttpRequest({
 							path: '/slow',
 							port
-						}).should.be.rejected('Too many attempts');
+						}).should.be.rejectedWith('{"statusCode":429,"error":"Too Many Requests","message":"you have exceeded your request limit"}(stauts 429)');
 				});
 		});
 
