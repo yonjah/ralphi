@@ -33,14 +33,14 @@
     "limit"
   ],
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "peerDependencies": {
-    "hapi": ">= 16",
-    "ralphi-client": ">= 1.0.0"
+    "hapi": ">= 17",
+    "ralphi-client": ">= 2.0.0"
   },
   "dependencies": {
-    "boom": "^7.1.0",
-    "joi": "^13.0.0"
+    "boom": "^7.2.0",
+    "joi": "^13.1.2"
   }
 }
