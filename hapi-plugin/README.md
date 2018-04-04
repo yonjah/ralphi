@@ -25,25 +25,6 @@ const plugin = require('hapi-ralphi');
 const client = new require('ralphi-client')();
 const server = new require('hapi').Server();
 
-server.register({plugin, options: {client}})
-server.route({
-        method: 'POST',
-        path: '/login',
-        config: {
-            plugins: {
-                ralphi: {
-                    bucket: 'login'
-                }
-            }
-        },
-        handler (request, reply) {
-            reply(null, 'Success');
-        }
-    })
-```
-
-Or if your using hapi v17  and up
-```js
 await server.register({plugin, options: {client}})
 server.route({
         method: 'POST',
