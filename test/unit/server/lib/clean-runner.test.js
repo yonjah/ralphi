@@ -4,7 +4,7 @@
  */
 'use strict';
 const utils = require('./utils');
-const {should, sinon, lolex, uid, requireSrc} = utils;
+const {sinon, lolex, requireSrc} = utils;
 const cleanRunner = requireSrc('clean-runner');
 
 describe('serializers', () => {

@@ -10,7 +10,7 @@
   },
   "homepage": "https://github.com/yonjah/ralphi#readme",
   "scripts": {
-    "lint": "eslint server/lib/ server/bin/ client/lib/ hapi-plugin/lib/",
+    "lint": "eslint server/lib/ server/bin/ client/lib/ hapi-plugin/lib/ test/",
     "test": "mocha 'test/**/*.test.js'",
     "cover": "nyc --reporter=lcov --reporter=text mocha 'test/unit/**/*.test.js'",
     "multiClean": "rm -rf .nyc_output || echo 1",
