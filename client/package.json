@@ -1,6 +1,6 @@
 {
   "name": "ralphi-client",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Rate limiting api client",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
