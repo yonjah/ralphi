@@ -73,6 +73,9 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 		}
 
 		const error = boom.tooManyRequests(settings.message);
+		if (settings.addHeaders) {
+			decorateError(error, limit);
+		}
 		throw error;
 	});
 
@@ -80,7 +83,12 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 		const response = request.response;
 		const settings = getSettings(request.route.settings.plugins.ralphi);
 		let limit    = request.plugins.ralphi;
-		if (settings && !settings.countSuccess && response.isBoom && (!limit || limit.conformant)) { //take one token if we only count failed request and request did not fail do to rate limiting
+
+		if (!settings || (response.isBoom && response.typeof === boom.tooManyRequests)) {
+			return h.continue;
+		}
+
+		if (!settings.countSuccess && response.isBoom && (!limit || limit.conformant)) { //take one token if we only count failed request and request did not fail do to rate limiting
 			try {
 				limit = await client.take(settings.bucket, settings.getKey(request));
 			} catch (e) {
@@ -88,22 +96,26 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 			}
 		}
 
-		if (!settings || !settings.addHeaders || !limit) {
+		if (!settings.addHeaders || !limit) {
 			return h.continue;
 		}
 
 		if (response.isBoom) {
-			response.output.headers['X-RateLimit-Limit'] = limit.size;
-			response.output.headers['X-RateLimit-Remaining'] = limit.remaining;
-			response.output.headers['X-RateLimit-Reset'] = limit.ttl;
-			return h.continue;
+			decorateError(response, limit);
+		} else {
+			response.header('X-RateLimit-Limit', limit.size);
+			response.header('X-RateLimit-Remaining', limit.remaining);
+			response.header('X-RateLimit-Reset', limit.ttl);
 		}
 
-		response.header('X-RateLimit-Limit', limit.size);
-		response.header('X-RateLimit-Remaining', limit.remaining);
-		response.header('X-RateLimit-Reset', limit.ttl);
 		return h.continue;
 	});
+
+	function decorateError (error, limit) {
+		error.output.headers['X-RateLimit-Limit'] = limit.size;
+		error.output.headers['X-RateLimit-Remaining'] = limit.remaining;
+		error.output.headers['X-RateLimit-Reset'] = limit.ttl;
+	}
 
 	function getSettings (routeSettings) {
 		if (routeSettings === false || (!routeSettings && !options.allRoutes)) {
