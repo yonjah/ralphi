@@ -1,3 +1,13 @@
+<a name="2.1.0"></a>
+# [2.1.0](https://github.com/yonjah/ralphi/compare/v2.0.2...v2.1.0) (2018-05-07)
+
+
+### Features
+
+* **client:** timeout request ([692782f](https://github.com/yonjah/ralphi/commit/692782f))
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/yonjah/ralphi/compare/v1.0.0...v2.0.0) (2018-04-04)
 

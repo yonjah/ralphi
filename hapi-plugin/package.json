@@ -1,6 +1,6 @@
 {
   "name": "hapi-ralphi",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Rate limiting plugin for hapi",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
