@@ -25,6 +25,10 @@ function promHttpRequest (options) {
 			reject(e);
 		});
 
+		req.setTimeout(options.timeout, () => {
+			req.abort();
+		});
+
 		req.end();
 	});
 }

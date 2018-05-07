@@ -40,6 +40,7 @@ client.take('login', ip)
 ## Config options
 - _host String (localhost)_ - host/ip  where Ralphi server is running on
 - _port Integer (8910)_ - port Ralphi server listens on
+- _timeout Integer (5000)_ - timeout for requests in miliseconds
 
 ## API
 Ralphi Client is using a Promise API all methods return Promises

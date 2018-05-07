@@ -10,12 +10,14 @@ const Client = requireSrc('client');
 describe('client', () => {
 	describe('constructor', () => {
 		it('should create new client using default settings', () => {
-			new Client().should.have.property('settings', {host: 'localhost', port: 8910});
+			new Client().should.have.property('settings', {host: 'localhost', port: 8910, timeout: 5000});
 		});
 
 		it('should merge settings with default settings', () => {
-			new Client({host: 'test'}).should.have.property('settings', {host: 'test', port: 8910});
-			new Client({port: 1234}).should.have.property('settings', {host: 'localhost', port: 1234});
+			new Client({host: 'test'}).should.have.property('settings', {host: 'test', port: 8910, timeout: 5000});
+			new Client({port: 1234}).should.have.property('settings', {host: 'localhost', port: 1234, timeout: 5000});
+			new Client({timeout: 2000}).should.have.property('settings', {host: 'localhost', port: 8910, timeout: 2000});
+			new Client({port: 1234, timeout: 2000}).should.have.property('settings', {host: 'localhost', port: 1234, timeout: 2000});
 		});
 
 		it('should validate config host as a string', () => {
@@ -33,13 +35,23 @@ describe('client', () => {
 			should(() => new Client({port: 0})).throw('Config port must be positive numeric integer');
 			should(() => new Client({port: 10.44})).throw('Config port must be positive numeric integer');
 		});
+
+		it('should validate config timeout as a positive integer', () => {
+			should(() => new Client({timeout: true})).throw('Config timeout must be positive numeric integer');
+			should(() => new Client({timeout: {}})).throw('Config timeout must be positive numeric integer');
+			should(() => new Client({timeout: '43'})).throw('Config timeout must be positive numeric integer');
+			should(() => new Client({timeout: -3})).throw('Config timeout must be positive numeric integer');
+			should(() => new Client({timeout: 0})).throw('Config timeout must be positive numeric integer');
+			should(() => new Client({timeout: 10.44})).throw('Config timeout must be positive numeric integer');
+		});
 	});
 
 	describe('query', () => {
 		const host = 'localhost';
 		const port = 8910;
+		const timeout = 500;
 		const url  = `http://${host}:${port}`;
-		const instance = new Client({host, port});
+		const instance = new Client({host, port, timeout});
 
 		afterEach(() => nock.cleanAll);
 
@@ -80,6 +92,19 @@ describe('client', () => {
 				});
 		});
 
+		it('should reject request if it reaches timeout', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+			const response = {fake: 'response', ttl: Date.now()};
+
+			nock(url).get(`/${bucket}/${key}`).socketDelay(timeout + 100).reply(200, response);
+			return instance.query(bucket, key)
+				.should.be.rejected()
+				.then(res => {
+					res.message.should.be.eql('socket hang up');
+				});
+		});
+
 		it('should require string bucket', () => {
 			should(instance.query.bind(instance, undefined, 'test')).throw('Bucket must exist and be a string');
 			should(instance.query.bind(instance, 0, 'test')).throw('Bucket must exist and be a string');
@@ -98,8 +123,9 @@ describe('client', () => {
 	describe('take', () => {
 		const host = 'localhost';
 		const port = 8910;
+		const timeout = 500;
 		const url  = `http://${host}:${port}`;
-		const instance = new Client({host, port});
+		const instance = new Client({host, port, timeout});
 
 		afterEach(() => nock.cleanAll);
 
@@ -140,6 +166,19 @@ describe('client', () => {
 				});
 		});
 
+		it('should reject request if it reaches timeout', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+			const response = {fake: 'response', ttl: Date.now()};
+
+			nock(url).post(`/${bucket}/${key}`).socketDelay(timeout + 100).reply(200, response);
+			return instance.take(bucket, key)
+				.should.be.rejected()
+				.then(res => {
+					res.message.should.be.eql('socket hang up');
+				});
+		});
+
 		it('should require string bucket', () => {
 			should(instance.take.bind(instance, undefined, 'test')).throw('Bucket must exist and be a string');
 			should(instance.take.bind(instance, 0, 'test')).throw('Bucket must exist and be a string');
@@ -158,8 +197,9 @@ describe('client', () => {
 	describe('reset', () => {
 		const host = 'localhost';
 		const port = 8910;
+		const timeout = 500;
 		const url  = `http://${host}:${port}`;
-		const instance = new Client({host, port});
+		const instance = new Client({host, port, timeout});
 
 		afterEach(() => nock.cleanAll);
 
@@ -202,6 +242,18 @@ describe('client', () => {
 				});
 		});
 
+		it('should reject request if it reaches timeout', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+
+			nock(url).delete(`/${bucket}/${key}`).socketDelay(timeout + 100).reply(200, 'true');
+			return instance.reset(bucket, key)
+				.should.be.rejected()
+				.then(res => {
+					res.message.should.be.eql('socket hang up');
+				});
+		});
+
 		it('should require string bucket', () => {
 			should(instance.reset.bind(instance, undefined, 'test')).throw('Bucket must exist and be a string');
 			should(instance.reset.bind(instance, 0, 'test')).throw('Bucket must exist and be a string');
@@ -220,8 +272,9 @@ describe('client', () => {
 	describe('clean', () => {
 		const host = 'localhost';
 		const port = 8910;
+		const timeout = 500;
 		const url  = `http://${host}:${port}`;
-		const instance = new Client({host, port});
+		const instance = new Client({host, port, timeout});
 
 		afterEach(() => nock.cleanAll);
 
@@ -256,6 +309,15 @@ describe('client', () => {
 				.should.be.rejected()
 				.then(res => {
 					should(res).be.eql(error);
+				});
+		});
+
+		it('should reject request if it reaches timeout', () => {
+			nock(url).delete('/clean').socketDelay(timeout + 100).reply(200, 'true');
+			return instance.clean()
+				.should.be.rejected()
+				.then(res => {
+					res.message.should.be.eql('socket hang up');
 				});
 		});
 	});

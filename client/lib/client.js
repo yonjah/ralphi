@@ -6,7 +6,8 @@
 const promHttpRequest = require('./promHttpRequest');
 const defaults = {
 	host: 'localhost',
-	port: 8910
+	port: 8910,
+	timeout: 5000
 };
 
 class RalphiClient {
@@ -16,6 +17,9 @@ class RalphiClient {
 		}
 		if (config.port !== undefined && (config.port < 1 || parseInt(config.port, 10) !== config.port)) {
 			throw new Error('Config port must be positive numeric integer');
+		}
+		if (config.timeout !== undefined && (config.timeout < 1 || parseInt(config.timeout, 10) !== config.timeout)) {
+			throw new Error('Config timeout must be positive numeric integer');
 		}
 		this.settings = Object.assign({}, defaults, config);
 	}
@@ -32,6 +36,7 @@ class RalphiClient {
 				method: 'POST',
 				host: this.settings.host,
 				port: this.settings.port,
+				timeout: this.settings.timeout,
 				path: `/${bucket}/${key}`
 			}).then(data => {
 				data = JSON.parse(data);
@@ -52,6 +57,7 @@ class RalphiClient {
 				method: 'GET',
 				host: this.settings.host,
 				port: this.settings.port,
+				timeout: this.settings.timeout,
 				path: `/${bucket}/${key}`
 			}).then(data => {
 				data = JSON.parse(data);
@@ -72,6 +78,7 @@ class RalphiClient {
 				method: 'DELETE',
 				host: this.settings.host,
 				port: this.settings.port,
+				timeout: this.settings.timeout,
 				path: `/${bucket}/${key}`
 			}).then(data => {
 				return data === 'true';
@@ -87,6 +94,7 @@ class RalphiClient {
 				method: 'DELETE',
 				host: this.settings.host,
 				port: this.settings.port,
+				timeout: this.settings.timeout,
 				path: '/clean'
 			}).then(data => {
 				return data === 'true';
