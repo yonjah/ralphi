@@ -8,7 +8,7 @@
   "bugs": {
     "url": "https://github.com/yonjah/ralphi/issues"
   },
-  "homepage": "https://github.com/yonjah/ralphi#readme",
+  "homepage": "https://ralphi.js.org",
   "scripts": {
     "lint": "eslint server/lib/ server/bin/ client/lib/ hapi-plugin/lib/ test/",
     "test": "mocha 'test/**/*.test.js'",
