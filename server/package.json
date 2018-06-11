@@ -8,7 +8,7 @@
   "bugs": {
     "url": "https://github.com/yonjah/ralphi/issues"
   },
-  "homepage": "https://github.com/yonjah/ralphi#readme",
+  "homepage": "https://ralphi.js.org",
   "scripts": {
     "test": "cd ..  && npm run test-server",
     "cover": "cd ..  && npm run cover-server"
