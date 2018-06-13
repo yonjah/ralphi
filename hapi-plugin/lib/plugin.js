@@ -8,7 +8,7 @@ const boom = require('boom');
 
 const optionsSchema = joi.object().keys({
 	client: joi.object().keys({
-		query: joi.func().arity(2).required(),
+		give: joi.func().arity(2).required(),
 		take: joi.func().arity(2).required(),
 		reset: joi.func().arity(2).required()
 	}).unknown().required(),
@@ -43,11 +43,7 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 		}
 
 		try {
-			if (settings.countSuccess) {
-				limit = await client.take(settings.bucket, settings.getKey(request));
-			} else {
-				limit = await client.query(settings.bucket, settings.getKey(request));
-			}
+			limit = await client.take(settings.bucket, settings.getKey(request));
 		} catch (e) {
 			request.log(['error'], e);
 			if (settings.onError) {
@@ -88,9 +84,9 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 			return h.continue;
 		}
 
-		if (!settings.countSuccess && response.isBoom && (!limit || limit.conformant)) { //take one token if we only count failed request and request did not fail do to rate limiting
+		if (!settings.countSuccess && response.statusCode < 400) { //take one token if we only count failed request and request did not fail do to rate limiting
 			try {
-				limit = await client.take(settings.bucket, settings.getKey(request));
+				limit = await client.give(settings.bucket, settings.getKey(request));
 			} catch (e) {
 				request.log(['error'], e);
 			}

@@ -27,7 +27,7 @@ module.exports = {
 			},
 			handler (req) {
 				const {bucket, key} = req.params;
-				const res = db.query(bucket, key);
+				const res = db.take(bucket, key, 0);
 				logger.info({req, bucket, key, res});
 				return res;
 			}
@@ -37,16 +37,22 @@ module.exports = {
 			method: 'POST',
 			path: '/{bucket}/{key}',
 			config: {
+				payload: {
+					defaultContentType: 'application/x-www-form-urlencoded'
+				},
 				validate: {
 					params: {
 						bucket: validatorBucketName,
 						key: validators.key
+					},
+					payload: {
+						count: validators.tokenCount
 					}
 				}
 			},
 			handler (req) {
 				const {bucket, key} = req.params;
-				const res = db.take(bucket, key);
+				const res = db.take(bucket, key, req.payload.count);
 				logger.info({req, bucket, key, res});
 				return res;
 			}

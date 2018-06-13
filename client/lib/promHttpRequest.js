@@ -5,7 +5,7 @@
 'use strict';
 const http = require('http');
 
-function promHttpRequest (options) {
+function promHttpRequest (options, postData) {
 	return new Promise((resolve, reject) => {
 		const req = http.request(options, res => {
 			let data = '';
@@ -28,6 +28,8 @@ function promHttpRequest (options) {
 		req.setTimeout(options.timeout, () => {
 			req.abort();
 		});
+
+		postData && req.write(postData);
 
 		req.end();
 	});

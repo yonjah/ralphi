@@ -8,7 +8,7 @@
 
 `Ralphi` is a simple rate limiting server intended to prevent bruteforce attacks on logins and other sensitive assets.
 
-For more info about Ralphi other components see [https://github.com/yonjah/ralphi](https://github.com/yonjah/ralphi)
+For more info about Ralphi other components see [ralphi](../README.md)
 
 ## Plugin Installation
 
@@ -20,13 +20,16 @@ $ npm install -s hapi-ralphi
 ## Usage 
 
 ### Integrate rate limiting in hapi.js
+<!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
+
 ```js
 const plugin = require('hapi-ralphi');
 const client = new require('ralphi-client')();
 const server = new require('hapi').Server();
 
-await server.register({plugin, options: {client}})
-server.route({
+async function init () {
+    await server.register({plugin, options: {client}});
+    server.route({
         method: 'POST',
         path: '/login',
         config: {
@@ -39,7 +42,9 @@ server.route({
         handler () {
             return 'Success';
         }
-    })
+    });
+}
+init();
 ```
 
 `login` root will be rate limited according to the bucket settings, and rate limiting headers will be sent with the response.
@@ -53,8 +58,8 @@ server.route({
 - _getKey Function(request)_ - A Function that will get the unique client key out of the request object. By default `request.info.remoteAddress` is used.
 - _addHeaders Boolean default(true)_ - Add the headers 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset' for routes that enable rate liming
 - _message String default('you have exceeded your request limit')_ - Error message in case limit has exceeded
-- _onError Function(request, reply, Error)_ - if set plugin will call this method if communication with Ralphi server results in an error. by default request will be rate limited using _errorSize_ and _errorDelay_ settings
-_errorSize Integer default(1),_: size of default record if error is returned from Ralphi server
-_errorDelay Integer default(60)_: default delay in seconds to send to the user if Ralphi server is not available
+- _onError Function(request, reply, Error) default(undefined)_ - if communication with Ralphi server results in an error, plugin will call this method and stop processing the request. By default request will be rate limited using _errorSize_ and _errorDelay_ settings
+_errorSize Integer default(1)_ - default record size if Ralphi server is not available
+_errorDelay Integer default(60)_ - default delay in seconds to send to the user if Ralphi server is not available
 
 All configuration options other than _client_,_ext_,_allRoutes_ can be overridden in the route settings. When _allRoutes_ is `false`(default), you'll need to set a config object in `config.plugins.ralphi` to enable the route. If _allRoutes_ is  `true` you can disable a specific route by setting `config.plugins.ralphi` to `false`.

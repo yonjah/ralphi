@@ -194,6 +194,80 @@ describe('client', () => {
 		});
 	});
 
+	describe('give', () => {
+		const host = 'localhost';
+		const port = 8910;
+		const timeout = 500;
+		const url  = `http://${host}:${port}`;
+		const instance = new Client({host, port, timeout});
+
+		afterEach(() => nock.cleanAll);
+
+		it('should send http request to server and return passed response', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+			const response = {fake: 'response', ttl: Date.now()};
+			nock(url).post(`/${bucket}/${key}`, 'count=-1').reply(200, response);
+			return instance.give(bucket, key)
+				.then(res => {
+					response.ttl = Math.ceil(response.ttl / 1000);
+					should(res).be.eql(response);
+				});
+		});
+
+		it('should reject request if error is sent', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+			const error = 'Bad fake request';
+			const statusCode = 400;
+			nock(url).post(`/${bucket}/${key}`, 'count=-1').reply(statusCode, error);
+			return instance.give(bucket, key)
+				.should.be.rejected()
+				.then(res => {
+					should(res).have.property('message', `${error}(stauts ${statusCode})`);
+				});
+		});
+
+		it('should reject request if it fails', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+			const error = new Error('Could not send fake req');
+			nock(url).post(`/${bucket}/${key}`, 'count=-1').replyWithError(error);
+			return instance.give(bucket, key)
+				.should.be.rejected()
+				.then(res => {
+					should(res).be.eql(error);
+				});
+		});
+
+		it('should reject request if it reaches timeout', () => {
+			const bucket = 'test';
+			const key = uid().toString();
+			const response = {fake: 'response', ttl: Date.now()};
+
+			nock(url).post(`/${bucket}/${key}`, 'count=-1').socketDelay(timeout + 100).reply(200, response);
+			return instance.give(bucket, key)
+				.should.be.rejected()
+				.then(res => {
+					res.message.should.be.eql('socket hang up');
+				});
+		});
+
+		it('should require string bucket', () => {
+			should(instance.give.bind(instance, undefined, 'test')).throw('Bucket must exist and be a string');
+			should(instance.give.bind(instance, 0, 'test')).throw('Bucket must exist and be a string');
+			should(instance.give.bind(instance, {}, 'test')).throw('Bucket must exist and be a string');
+			should(instance.give.bind(instance, 1234, 'test')).throw('Bucket must exist and be a string');
+		});
+
+		it('should require string key', () => {
+			should(instance.give.bind(instance, 'test')).throw('Key must exist and be a string');
+			should(instance.give.bind(instance, 'test', 0)).throw('Key must exist and be a string');
+			should(instance.give.bind(instance, 'test', 123)).throw('Key must exist and be a string');
+			should(instance.give.bind(instance, 'test', {})).throw('Key must exist and be a string');
+		});
+	});
+
 	describe('reset', () => {
 		const host = 'localhost';
 		const port = 8910;

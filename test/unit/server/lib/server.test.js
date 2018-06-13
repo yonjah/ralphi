@@ -8,11 +8,13 @@ const {_, uid, requireSrc, sinon} = utils;
 const server = requireSrc('server');
 
 describe('server', () => {
+	const take = sinon.stub().returns({take: 'fake'});
+	const reset = sinon.stub().returns({reset: 'fake'});
+	const clean = sinon.stub().returns({clean: 'fake'});
 	const db = {
-		query: sinon.stub().returns({query: 'fake'}),
-		take: sinon.stub().returns({take: 'fake'}),
-		reset: sinon.stub().returns({reset: 'fake'}),
-		clean: sinon.stub().returns({clean: 'fake'})
+		take : (key, bucket, count) => take(key, bucket, count),
+		reset : (key, bucket) => reset(key, bucket),
+		clean : () => clean()
 	};
 	const logger = {
 		debug: sinon.spy(),
@@ -32,30 +34,32 @@ describe('server', () => {
 	});
 
 	beforeEach(() => {
-		_.map(db, method => method.resetHistory());
+		take.resetHistory();
+		reset.resetHistory();
+		clean.resetHistory();
 		_.map(logger, method => method.resetHistory());
 	});
 
 	after(() => instance.stop());
 
-	it('should pass get request to db.query', () => {
+	it('should pass GET request to db.take with 0 count', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		const query = {query: 'super fake'};
+		const record = {record: 'super fake'};
 
-		db.query.returns(query);
+		take.returns(record);
 
 		return instance.inject({
 				method: 'GET',
 				url: `/${bucket}/${key}`
 			}).then(res => {
-				db.query.should.be.calledOnce();
-				db.query.should.be.calledWith(bucket, key);
-				res.result.should.be.eql(query);
+				take.should.be.calledOnce();
+				take.should.be.calledWith(bucket, key, 0);
+				res.result.should.be.eql(record);
 			});
 	});
 
-	it('should log request to db.query', () => {
+	it('should log GET request', () => {
 		const bucket = 'test';
 		const key = uid().toString();
 		return instance.inject({
@@ -73,17 +77,18 @@ describe('server', () => {
 	it('should pass post request to db.take', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		const take = {take: 'fake'};
+		const takeRes = {take: 'fake'};
 
-		db.take.returns(take);
+		take.returns(takeRes);
 
 		return instance.inject({
 				method: 'POST',
-				url: `/${bucket}/${key}`
+				url: `/${bucket}/${key}`,
+				payload: {}
 			}).then(res => {
-				db.take.should.be.calledOnce();
-				db.take.should.be.calledWith(bucket, key);
-				res.result.should.be.eql(take);
+				take.should.be.calledOnce();
+				take.should.be.calledWith(bucket, key);
+				res.result.should.be.eql(takeRes);
 			});
 	});
 
@@ -92,7 +97,8 @@ describe('server', () => {
 		const key = uid().toString();
 		return instance.inject({
 				method: 'POST',
-				url: `/${bucket}/${key}`
+				url: `/${bucket}/${key}`,
+				payload: {}
 			}).then(() => {
 				logger.info.should.be.calledOnce();
 				const log = logger.info.args[0][0];
@@ -106,26 +112,26 @@ describe('server', () => {
 	it('should pass reset request to db.reset', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		const reset = {reset: 'fake'};
+		const resetRes = {reset: 'fake'};
 
-		db.reset.returns(reset);
+		reset.returns(resetRes);
 
 		return instance.inject({
 				method: 'DELETE',
 				url: `/${bucket}/${key}`
 			}).then(res => {
-				db.reset.should.be.calledOnce();
-				db.reset.should.be.calledWith(bucket, key);
-				res.result.should.be.eql(reset);
+				reset.should.be.calledOnce();
+				reset.should.be.calledWith(bucket, key);
+				res.result.should.be.eql(resetRes);
 			});
 	});
 
 	it('should log request to db.reset', () => {
 		const bucket = 'test';
 		const key = uid().toString();
-		const reset = {reset: 'fake'};
+		const resetRes = {reset: 'fake'};
 
-		db.reset.returns(reset);
+		reset.returns(resetRes);
 
 		return instance.inject({
 				method: 'DELETE',
@@ -140,23 +146,23 @@ describe('server', () => {
 	});
 
 	it('should pass clean request to db.clean', () => {
-		const clean = {clean: 'fake'};
+		const cleanRes = {clean: 'fake'};
 
-		db.clean.resolves(clean);
+		clean.resolves(cleanRes);
 
 		return instance.inject({
 				method: 'DELETE',
 				url: '/clean'
 			}).then(res => {
-				db.clean.should.be.calledOnce();
+				clean.should.be.calledOnce();
 				res.result.should.be.eql(true);
 			});
 	});
 
 	it('should log request to db.clean', () => {
-		const clean = {clean: 'fake'};
+		const cleanRes = {clean: 'fake'};
 
-		db.clean.resolves(clean);
+		clean.resolves(cleanRes);
 
 		return instance.inject({
 				method: 'DELETE',

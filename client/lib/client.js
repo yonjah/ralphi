@@ -46,6 +46,28 @@ class RalphiClient {
 	}
 
 	/**
+	 * Adds    1 token
+	 * @param  {String} bucket
+	 * @param  {String} key
+	 * @return {Promise<Object>}
+	 */
+	give (bucket, key) {
+		_validateApiCall(bucket, key);
+		return promHttpRequest({
+				method: 'POST',
+				host: this.settings.host,
+				port: this.settings.port,
+				timeout: this.settings.timeout,
+				path: `/${bucket}/${key}`
+			}, 'count=-1')
+			.then(data => {
+				data = JSON.parse(data);
+				data.ttl = Math.ceil(data.ttl / 1000);
+				return data;
+			});
+	}
+
+	/**
 	 * Query key record without removing any tokens
 	 * @param  {String} bucket
 	 * @param  {String} key

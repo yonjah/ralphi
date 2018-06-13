@@ -11,52 +11,50 @@ const binPath = path.join(base, 'server', 'bin', 'server-cli.js');
 const Client = require(path.join(base, 'client'));
 const plugin = require(path.join(base, 'hapi-plugin'));
 
-
 describe('integration', () => {
-	const port    = 3000;
 	const slowTtl = 1000;
 	const fastTtl = 1;
+	const client  = new Client();
 
-	let ralphiCli, apiServer, client;
+	let ralphiCli;
 	before(cb => {
-		let ready = 0;
+		let called = false;
+		ralphiCli = spawn(binPath, [`hSlow,1,${slowTtl}ms`, `hFast,1,${fastTtl}ms`]);
 
-		function done (err) {
-			if (err) {
-				ready = 2;
-				return cb(err);
-			} else {
-				ready += 1;
-				if (ready == 2) {
-					return cb();
-				}
-
-			}
-		}
-
-		ralphiCli = spawn(binPath, [`slow,1,${slowTtl}ms`, `fast,1,${fastTtl}ms`]);
 		ralphiCli.stderr.on('data', data => {
 			throw new Error(data.toString());
 		});
+
 		ralphiCli.stdout.on('data', () => {
-			done();
+			if (!called) {
+				called = true;
+				return cb();
+			}
 		});
+
 		ralphiCli.on('close', code => {
 			if (code) {
 				throw new Error(`cli exit with code ${code}`);
 			}
 		});
+	});
 
-		client = new Client();
+	after(() => {
+		ralphiCli.kill();
+	});
 
-		try {
+	describe('hapi rate limiting', () => {
+		const port = 3000;
+
+		let apiServer;
+		before(() => {
 			apiServer = new hapi.Server({port});
 			apiServer.route({
 				method: 'GET',
 				path: '/slow',
 				config: {
 					plugins: {
-						ralphi: {bucket: 'slow'}
+						ralphi: {bucket: 'hSlow'}
 					}
 				},
 				handler () {
@@ -68,65 +66,22 @@ describe('integration', () => {
 				path: '/fast',
 				config: {
 					plugins: {
-						ralphi: {bucket: 'fast'}
+						ralphi: {bucket: 'hFast'}
 					}
 				},
 				handler () {
 					return 'Success';
 				}
 			});
-			apiServer.register({plugin, options: {client}})
-				.then(() => apiServer.start())
-				.then(() => done())
-				.catch(e => done(e));
 
-		} catch (e) {
-			apiServer = new hapi.Server();
-			apiServer.connection({port});
+			return apiServer.register({plugin, options: {client}})
+				.then(() => apiServer.start());
+		});
 
+		after(() => {
+			return apiServer.stop();
+		});
 
-			apiServer.route({
-				method: 'GET',
-				path: '/slow',
-				config: {
-					plugins: {
-						ralphi: {bucket: 'slow'}
-					}
-				},
-				handler (request, reply) {
-					reply(null, 'Success');
-				}
-			});
-			apiServer.route({
-				method: 'GET',
-				path: '/fast',
-				config: {
-					plugins: {
-						ralphi: {bucket: 'fast'}
-					}
-				},
-				handler (request, reply) {
-					reply(null, 'Success');
-				}
-			});
-
-			apiServer.register({register: plugin, options: {client}}, err => {
-				if (err) {
-					throw err;
-				}
-
-				apiServer.start(done);
-			});
-
-		}
-	});
-
-	after(() => {
-		ralphiCli.kill();
-		apiServer.stop();
-	});
-
-	describe('rate limiting', () => {
 		it('should rate limit route', () => {
 			return promHttpRequest({
 					path: '/slow',
@@ -169,6 +124,4 @@ describe('integration', () => {
 				});
 		});
 	});
-
-
 });

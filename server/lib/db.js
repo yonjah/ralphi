@@ -50,6 +50,7 @@ function raplhDB (conf = {}) {
 					return bucket.storage.size;
 				});
 		},
+
 		clean (bucketNames)  {
 			if (!bucketNames) {
 				bucketNames = Array.from(buckets.keys());
@@ -76,50 +77,41 @@ function raplhDB (conf = {}) {
 					}).then(() => bucket.storage.size);
 				}));
 		},
-		query (bucketName, key) {
-			logger.debug({msg: 'query', bucket: bucketName, key});
+
+		take (bucketName, key, count) {
+			count = count === undefined ? 1 : count;
+			logger.debug({msg: 'take', bucket: bucketName, key, count});
 			const bucket = buckets.get(bucketName);
 			if (!bucket) {
 				throw new Error(`Could not find bucket ${bucketName}`);
 			}
-			let record = bucket.storage.get(key);
+			let record = bucket.storage.get(key),
+				conformant = true;
 			if (!record || record.ttl < Date.now()) {
+				logger.debug({msg: 'new record', record});
 				record = {
 					ttl: Date.now() + bucket.ttl,
 					remaining: bucket.size
 				};
-				logger.debug({msg: 'query new record', record});
-			}
-			return Object.assign({conformant: record.remaining !== 0, size: bucket.size}, record);
-		},
-		take (bucketName, key) {
-			logger.debug({msg: 'take', bucket: bucketName, key});
-			const bucket = buckets.get(bucketName);
-			if (!bucket) {
-				throw new Error(`Could not find bucket ${bucketName}`);
-			}
-			let record = bucket.storage.get(key);
-			if (!record || record.ttl < Date.now()) {
-				record = {
-					ttl: Date.now() + bucket.ttl,
-					remaining: bucket.size - 1
-				};
-				logger.debug({msg: 'new record', record});
 				bucket.storage.set(key, record);
-			} else if (record.remaining > 0) {
-				logger.debug({msg: 'existing record', record});
-				record.remaining -= 1;
-			} else {
-				logger.debug({msg: 'limited record', record});
-				return {
-					conformant: false,
-					size: bucket.size,
-					remaining: 0,
-					ttl: record.ttl
-				};
 			}
-			return Object.assign({conformant: true, size: bucket.size}, record);
+
+			record.remaining -= count;
+
+			if (count <= 0) {
+				if (record.remaining <= 0) { //we gave or query so at 0 request is not conformant
+					conformant = false;
+				} else if (record.remaining > bucket.size) { //make sure we don't go past bucket size
+					record.remaining = bucket.size;
+				}
+			} else if (record.remaining < 0) { //we just took tokens so at 0 request is still conformant
+				conformant = false;
+			}
+
+			logger.debug({msg: conformant ? 'conformant record' : 'limited record', record});
+			return {conformant, size: bucket.size, remaining: conformant ? record.remaining : 0, ttl: record.ttl};
 		},
+
 		reset (bucketName, key) {
 			logger.debug({msg: 'delete', bucket: bucketName, key});
 			const bucket = buckets.get(bucketName);

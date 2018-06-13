@@ -7,6 +7,7 @@ const joi = require('joi');
 const bucketName = joi.string().required().alphanum();
 const bucketSize = joi.number().min(1).integer().required();
 const key = joi.string().required();
+const tokenCount = joi.number().min(-1).max(1).integer().default(1);
 const bucket = joi.object().keys({
 		ttl: joi.number().min(1).integer().required(),
 		size: bucketSize
@@ -29,6 +30,7 @@ const dbConfig = joi.object().keys({
 
 
 module.exports = {
+	tokenCount,
 	bucketName,
 	bucketSize,
 	key,

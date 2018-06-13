@@ -14,10 +14,11 @@ Main difference to `limitd` -
 - No wait, count or other advance features you can only `take` or `reset` a record
 - HTTP interface
 
-Ralphi currently has 3 independent npm modules to it 
-- [ralphi](https://github.com/yonjah/ralphi/blob/master/server/README.md) - Simple API server for rate limiting, use to store rate limiting data
-- [ralphi-client](https://github.com/yonjah/ralphi/blob/master/client/README.md) - client to easily query the server
-- [hapi-ralphi](https://github.com/yonjah/ralphi/blob/master/hapi-plugin/README.md) - [hapi.js](https://github.com/hapi/hapi) plugin to easily add rate limiting to hapi 
+Ralphi currently has 4 independent npm modules to it
+- ralphi - Simple API server for rate limiting, use to store rate limiting data
+- [ralphi-client](../client/README.md) - client to easily query the server
+- [hapi-ralphi](../hapi-plugin/README.md) - [hapi.js](https://hapijs.com/) plugin to easily add rate limiting to hapi
+- [express-ralphi](../express-middleware/README.md) - [express.js](https://expressjs.com) middleware to easily add rate limiting to express
 
 ## Installation
 
@@ -39,13 +40,16 @@ The above command will start `Ralphi` with a single `login` bucket that allows f
 For more information see the [Config](#config) section or run `ralphi --help`
 
 ### Integrate rate limiting in hapi.js
+<!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
+
 ```js
 const plugin = require('hapi-ralphi');
 const client = new require('ralphi-client')();
 const server = new require('hapi').Server();
 
-server.register({plugin, options: {client}})
-server.route({
+async function init () {
+    await server.register({plugin, options: {client}});
+    server.route({
         method: 'POST',
         path: '/login',
         config: {
@@ -55,36 +59,37 @@ server.route({
                 }
             }
         },
-        handler (request, reply) {
-            reply(null, 'Success');
+        handler () {
+            return 'Success';
         }
-    })
+    });
+}
+init();
 ```
 
 `login` root will be rate limited according to the bucket settings, and rate limiting headers will be sent with the response.
 
-For more information see [hapi-ralphi](https://github.com/yonjah/ralphi/blob/master/hapi-plugin/README.md) 
+For more information see [hapi-ralphi](hapi-plugin/README.md) 
 
 ### Integrate rate limiting in other frameworks
+<!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
+
 ```js
 const client = new require('ralphi-client')();
-...
-//in your handler code
-client.take('login', ip)
-    .then(limit => {
-        if (limit.conformant) {
-            //allow access
-            return `Request was done. You have ${limit.remaining} more requests until ${new Date(limit.ttl * 1000)}`
-        } else {
-            //reject access
-            throw new Error(`You have made too many requests. You can send ${limit.size} requests after ${new Date(limit.ttl * 1000)}`)
-        }
-    }, e => {
-        //handle error if Ralphi server is unavailable 
-    });
+
+async function handler (req, res) { //in your handler code
+    const limit = await client.take('login', req.ip);
+    if (limit.conformant) {
+        //allow access
+        return `Request was done. You have ${limit.remaining} more requests until ${new Date(limit.ttl * 1000)}`;
+    } else {
+        //reject access
+        throw new Error(`You have made too many requests. You can send ${limit.size} requests after ${new Date(limit.ttl * 1000)}`);
+    }
+}
 ```
 
-For more information see [ralphi-client](https://github.com/yonjah/ralphi/blob/master/client/README.md) 
+For more information see [ralphi-client](client/README.md)
 
 
 ## Config

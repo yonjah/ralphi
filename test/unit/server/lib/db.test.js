@@ -43,69 +43,15 @@ describe('db', () => {
 		dbi.reset.should.be.Function();
 	});
 
-	describe('query', () => {
-		const dbi = db({
-			logger,
-			buckets
-		});
-
-		let now, clock;
-
-		beforeEach(() => {
-			now = Date.now();
-			clock = lolex.install({now, toFake:['Date']});
-		});
-
-		afterEach(() => {
-			clock.uninstall();
-		});
-
-
-		it('should return new record without removing any tokens', () => {
-			const name   = 'fast10';
-			const bucket = buckets[name];
-			const key    = uid();
-			const takeResult = {
-				conformant: true,
-				remaining: bucket.size,
-				size: bucket.size,
-				ttl: now + bucket.ttl
-			};
-			dbi.query(name, key).should.be.eql(takeResult);
-			dbi.query(name, key).should.be.eql(takeResult);
-		});
-
-		it('should return existing record without removing any tokens', () => {
-			const name = 'fast10';
-			const bucket = buckets[name];
-			const key = uid();
-			let takeResult = dbi.take(name, key);
-			dbi.query(name, key).should.be.eql(takeResult);
-			dbi.query(name, key).should.be.eql(takeResult);
-			for (let i = bucket.size; i > 0; i -= 1) {
-				takeResult =  dbi.take(name, key);
-				if (takeResult.remaining === 0) {
-					dbi.query(name, key).should.be.eql(Object.assign({}, takeResult, {conformant: false}));
-					takeResult = dbi.take(name, key);
-					break;
-				}
-			}
-			dbi.query(name, key).should.be.eql(takeResult);
-		});
-
-		it('should fail if bucket does not exist', () => {
-			const name = 'nonExist';
-			const key = uid();
-			should(dbi.query.bind(dbi, name, key)).throw(`Could not find bucket ${name}`);
-		});
-	});
-
 	describe('take', () => {
 		const dbi = db({
 			logger,
 			buckets
 		});
 
+		const count = 1;
+
+
 		let now, clock;
 
 		beforeEach(() => {
@@ -118,22 +64,142 @@ describe('db', () => {
 		});
 
 
-		it('should take one token and return correct rate limiting info', () => {
+		it('should take token count and return correct rate limiting info', () => {
 			const name   = 'fast10';
 			const bucket = buckets[name];
 			const key    = uid();
-			for (let i = bucket.size; i > 0; i -= 1) {
-				dbi.take(name, key).should.be.eql({
+
+			let i;
+
+			for (i = bucket.size; i > 0; i -= 1) {
+				dbi.take(name, key, count).should.be.eql({
 					conformant: true,
-					remaining: i - 1,
+					remaining: i - count,
 					size: bucket.size,
 					ttl: now + bucket.ttl
 				});
 			}
-			dbi.take(name, key).should.be.eql({
+
+			dbi.take(name, key, count).should.be.eql({
 				conformant: false,
 				size: bucket.size,
 				remaining: 0,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, -count).should.be.eql({
+				conformant: false,
+				size: bucket.size,
+				remaining: 0,
+				ttl: now + bucket.ttl
+			});
+
+
+			for (i = 0; i < bucket.size; i += 1) {
+				dbi.take(name, key, -count).should.be.eql({
+					conformant: true,
+					remaining: i + count,
+					size: bucket.size,
+					ttl: now + bucket.ttl
+				});
+			}
+		});
+
+		it('should keep internal state of overdrawn tokens', () => {
+			const name   = 'fast1';
+			const bucket = buckets[name];
+			const key    = uid();
+
+			const runs  = 10 + Math.ceil(Math.random() * 40);
+
+			let i;
+
+			for (i = bucket.size; i > 0; i -= 1) {
+				dbi.take(name, key, count).should.be.eql({
+					conformant: true,
+					remaining: i - count,
+					size: bucket.size,
+					ttl: now + bucket.ttl
+				});
+			}
+
+			for (i = runs; i > 0; i -= 1) {
+				dbi.take(name, key, count).should.be.eql({
+					conformant: false,
+					remaining: 0,
+					size: bucket.size,
+					ttl: now + bucket.ttl
+				});
+			}
+
+			for (i = runs; i > 0; i -= 1) {
+				dbi.take(name, key, -count).should.be.eql({
+					conformant: false,
+					remaining: 0,
+					size: bucket.size,
+					ttl: now + bucket.ttl
+				});
+			}
+
+			dbi.take(name, key, -count).should.be.eql({
+				conformant: true,
+				remaining: 1,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+		});
+
+		it('should not add tokens past bucket size', () => {
+			const name   = 'fast10';
+			const bucket = buckets[name];
+			const key    = uid();
+
+			dbi.take(name, key, -count).should.be.eql({
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, -count).should.be.eql({
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, count).should.be.eql({
+				conformant: true,
+				remaining: bucket.size - count,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, -count).should.be.eql({
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, -count).should.be.eql({
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, (count * 2)).should.be.eql({
+				conformant: true,
+				remaining: bucket.size - (count * 2),
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			});
+
+			dbi.take(name, key, -(count * 5)).should.be.eql({
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
 				ttl: now + bucket.ttl
 			});
 		});
@@ -143,14 +209,14 @@ describe('db', () => {
 			const bucket = buckets[name];
 			const key = uid();
 			for (let i = bucket.size; i > 0; i -= 1) {
-				dbi.take(name, key).should.be.eql({
+				dbi.take(name, key, count).should.be.eql({
 					conformant: true,
 					remaining: i - 1,
 					size: bucket.size,
 					ttl: now + bucket.ttl
 				});
 			}
-			dbi.take(name, key).should.be.eql({
+			dbi.take(name, key, count).should.be.eql({
 				conformant: false,
 				size: bucket.size,
 				remaining: 0,
@@ -158,7 +224,7 @@ describe('db', () => {
 			});
 			clock.tick(bucket.ttl + 1);
 			now += bucket.ttl + 1;
-			dbi.take(name, key).should.be.eql({
+			dbi.take(name, key, count).should.be.eql({
 				conformant: true,
 				remaining: bucket.size - 1,
 				size: bucket.size,
@@ -167,10 +233,84 @@ describe('db', () => {
 
 		});
 
+		it('should return new record without removing any tokens when count is 0', () => {
+			const name   = 'fast10';
+			const bucket = buckets[name];
+			const key    = uid();
+			const takeResult = {
+				conformant: true,
+				remaining: bucket.size,
+				size: bucket.size,
+				ttl: now + bucket.ttl
+			};
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+		});
+
+		it('should return existing record without removing any tokens when count is 0', () => {
+			const name = 'fast10';
+			const bucket = buckets[name];
+			const key = uid();
+			let takeResult = dbi.take(name, key),
+				remaining = bucket.size - 1;
+			takeResult.should.have.property('remaining', remaining);
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+			for (let i = bucket.size; i > 0; i -= 1) {
+				takeResult =  dbi.take(name, key);
+				remaining -= 1;
+				takeResult.should.have.property('remaining', remaining);
+				if (takeResult.remaining === 0) {
+					dbi.take(name, key, 0).should.be.eql(Object.assign({}, takeResult, {conformant: false}));
+					takeResult = dbi.take(name, key);
+					break;
+				}
+			}
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+		});
+
+		it('should return correct conformant state when count is 0', () => {
+			const name = 'fast10';
+			const key = uid();
+			let takeResult = dbi.take(name, key);
+			while (takeResult.conformant) {
+				takeResult = dbi.take(name, key);
+			}
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+		});
+
+		it('should return correct conformant state when count is -1', () => {
+			const name = 'fast10';
+			const key = uid();
+			let takeResult = dbi.take(name, key);
+			while (takeResult.conformant) {
+				takeResult = dbi.take(name, key);
+			}
+			takeResult = dbi.take(name, key, -1);
+			takeResult.should.have.property('remaining', 0);
+			takeResult.should.have.property('conformant', false);
+			takeResult = dbi.take(name, key, -1);
+			takeResult.should.have.property('remaining', 1);
+			takeResult.should.have.property('conformant', true);
+		});
+
+
+		it('should not return negative remaining state when count is 0', () => {
+			const name = 'fast1';
+			const key = uid();
+			let takeResult = dbi.take(name, key);
+			while (takeResult.conformant) {
+				takeResult = dbi.take(name, key);
+			}
+			takeResult = dbi.take(name, key);
+			dbi.take(name, key, 0).should.be.eql(takeResult);
+		});
+
+
 		it('should fail if bucket does not exist', () => {
 			const name = 'nonExist';
 			const key = uid();
-			should(dbi.take.bind(dbi, name, key)).throw(`Could not find bucket ${name}`);
+			should(dbi.take.bind(dbi, name, key, count)).throw(`Could not find bucket ${name}`);
 		});
 	});
 
@@ -180,6 +320,7 @@ describe('db', () => {
 			logger,
 			buckets
 		});
+		const count = 1;
 
 		let now, clock;
 
@@ -196,20 +337,20 @@ describe('db', () => {
 			const name = 'fast1';
 			const bucket = buckets[name];
 			const key = uid();
-			dbi.take(name, key).should.be.eql({
+			dbi.take(name, key, count).should.be.eql({
 				conformant: true,
 				remaining: bucket.size - 1,
 				size: bucket.size,
 				ttl: now + bucket.ttl
 			});
-			dbi.take(name, key).should.be.eql({
+			dbi.take(name, key, count).should.be.eql({
 				conformant: false,
 				size: bucket.size,
 				remaining: 0,
 				ttl: now + bucket.ttl
 			});
 			dbi.reset(name, key).should.be.equal(true);
-			dbi.take(name, key).should.be.eql({
+			dbi.take(name, key, count).should.be.eql({
 				conformant: true,
 				remaining: bucket.size - 1,
 				size: bucket.size,
@@ -237,6 +378,8 @@ describe('db', () => {
 			buckets
 		});
 
+		const count = 1;
+
 		let now, clock;
 
 		beforeEach(() => {
@@ -253,14 +396,14 @@ describe('db', () => {
 			const bucket = buckets[name];
 			const keys = [uid(),uid(),uid(),uid()];
 			keys.forEach(key => {
-				dbi.take(name, key);
+				dbi.take(name, key, count);
 			});
 			clock.tick(bucket.ttl + 1);
-			dbi.take(name, keys[0]);
+			dbi.take(name, keys[0], count);
 			dbi.reset(name, keys[2]);
-			dbi.take(name, keys[2]);
+			dbi.take(name, keys[2], count);
 			let newUid = uid();
-			dbi.take(name, newUid);
+			dbi.take(name, newUid, count);
 			keys.push(newUid);
 			clock.tick(2);
 
@@ -286,6 +429,8 @@ describe('db', () => {
 			buckets
 		});
 
+		const count = 1;
+
 		let now, clock;
 
 		beforeEach(() => {
@@ -302,14 +447,14 @@ describe('db', () => {
 			const bucket = buckets[name];
 			const keys = [uid(),uid(),uid(),uid()];
 			keys.forEach(key => {
-				dbi.take(name, key);
+				dbi.take(name, key, count);
 			});
 			clock.tick(bucket.ttl + 1);
-			dbi.take(name, keys[0]);
+			dbi.take(name, keys[0], count);
 			dbi.reset(name, keys[2]);
-			dbi.take(name, keys[2]);
+			dbi.take(name, keys[2], count);
 			let newUid = uid();
-			dbi.take(name, newUid);
+			dbi.take(name, newUid, count);
 			keys.push(newUid);
 			clock.tick(2);
 

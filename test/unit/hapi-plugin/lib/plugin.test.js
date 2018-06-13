@@ -25,47 +25,47 @@ describe('hapi-plugin', () => {
 				.throw('options "value" is required');
 			should(() => plugin.register({fake: 'server'}, {}))
 				.throw(/\[1\] "client" is required/);
-			should(() => plugin.register({fake: 'server'}, {client: {reset: arity2, query: arity2}}))
+			should(() => plugin.register({fake: 'server'}, {client: {reset: arity2, give: arity2}}))
 				.throw(/\[1\] "take" is required/);
-			should(() => plugin.register({fake: 'server'}, {client: {reset: arity2, query: arity2, take () {}}}))
+			should(() => plugin.register({fake: 'server'}, {client: {reset: arity2, give: arity2, take () {}}}))
 				.throw(/\[1\] "take" must have an arity of 2/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2}}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2}}))
 				.throw(/\[1\] "reset" is required/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset () {}}}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset () {}}}))
 				.throw(/\[1\] "reset" must have an arity of 2/);
 			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, reset: arity2}}))
-				.throw(/\[1\] "query" is required/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, reset: arity2, query () {}}}))
-				.throw(/\[1\] "query" must have an arity of 2/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, ext: {bad: true}}))
+				.throw(/\[1\] "give" is required/);
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, reset: arity2, give () {}}}))
+				.throw(/\[1\] "give" must have an arity of 2/);
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, ext: {bad: true}}))
 				.throw(/\[1\] "ext" must be a string/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, ext: 'bad Hook'}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, ext: 'bad Hook'}))
 				.throw(/\[1\] "ext" must be one of \[onPreAuth, onPostAuth, onPreHandler\]/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, allRoutes: 1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, allRoutes: 1}))
 				.throw(/\[1\] "allRoutes" must be a boolean/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, bucket: 1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, bucket: 1}))
 				.throw(/\[1\] "bucket" must be a string/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, bucket: 'assj$'}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, bucket: 'assj$'}))
 				.throw(/\[1\] "bucket" must only contain alpha-numeric characters/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, addHeaders: 1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, addHeaders: 1}))
 				.throw(/\[1\] "addHeaders" must be a boolean/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, message: 1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, message: 1}))
 				.throw(/\[1\] "message" must be a string/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, onError: 1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, onError: 1}))
 				.throw(/\[1\] "onError" must be a Function/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, onError () {}}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, onError () {}}))
 				.throw(/\[1\] "onError" must have an arity of 3/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, getKey: 1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, getKey: 1}))
 				.throw(/\[1\] "getKey" must be a Function/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, getKey () {}}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, getKey () {}}))
 				.throw(/\[1\] "getKey" must have an arity of 1/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, errorSize: 'bad'}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, errorSize: 'bad'}))
 				.throw(/\[1\] "errorSize" must be a number/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, errorSize: -1}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, errorSize: -1}))
 				.throw(/\[1\] "errorSize" must be larger than or equal to 0/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, errorDelay: 'bad'}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, errorDelay: 'bad'}))
 				.throw(/\[1\] "errorDelay" must be a number/);
-			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, query: arity2, reset: arity2}, errorDelay: 0}))
+			should(() => plugin.register({fake: 'server'}, {client: {take: arity2, give: arity2, reset: arity2}, errorDelay: 0}))
 				.throw(/\[1\] "errorDelay" must be larger than or equal to 1/);
 		});
 
@@ -73,7 +73,7 @@ describe('hapi-plugin', () => {
 		it('should register to the correct request lifecycle on server and call the reply callback on hapi v17', () => {
 			const server = {ext: sinon.spy(), version: '17.0.0'};
 			const cb = sinon.spy();
-			const client = {query: (x, y) => y, take: (x, y) => y, reset: (x, y) => y};
+			const client = {give: (x, y) => y, take: (x, y) => y, reset: (x, y) => y};
 
 			plugin.register(server, {client});
 			server.ext.should.be.calledTwice();
@@ -92,11 +92,11 @@ describe('hapi-plugin', () => {
 
 	describe('request', () => {
 		const take = sinon.stub();
-		const query = sinon.stub();
+		const give = sinon.stub();
 		const reset = sinon.stub();
 		const getKey = sinon.stub();
 		const bucket = 'test';
-		const client = {query: (x, y) => query(x, y), take: (x, y) => take(x, y), reset: (x, y) => reset(x, y)};
+		const client = {give: (x, y) => give(x, y), take: (x, y) => take(x, y), reset: (x, y) => reset(x, y)};
 
 		let limitCount = 0,
 			server;
@@ -144,8 +144,8 @@ describe('hapi-plugin', () => {
 		});
 
 		beforeEach(() => {
-			query.reset();
 			take.reset();
+			give.reset();
 			reset.reset();
 			getKey.reset();
 			limitCount = 0;
@@ -275,14 +275,14 @@ describe('hapi-plugin', () => {
 
 	describe('config overrides', () => {
 		const take = sinon.stub();
-		const query = sinon.stub();
+		const give = sinon.stub();
 		const reset = sinon.stub();
 		const getKey = sinon.stub();
 		const handler = sinon.stub();
 		const bucket = 'test';
 		const message = 'No more calls';
 		const onError = sinon.stub();
-		const client = {query: (x, y) => query(x, y), take: (x, y) => take(x, y), reset: (x, y) => reset(x, y)};
+		const client = {give: (x, y) => give(x, y), take: (x, y) => take(x, y), reset: (x, y) => reset(x, y)};
 		const otherBucket = 'otherBucket';
 		const otherGetKey = sinon.stub();
 
@@ -367,8 +367,8 @@ describe('hapi-plugin', () => {
 		});
 
 		beforeEach(() => {
-			query.reset();
 			take.reset();
+			give.reset();
 			reset.reset();
 			getKey.reset();
 			onError.reset();
@@ -491,50 +491,50 @@ describe('hapi-plugin', () => {
 				});
 		});
 
-		it('should only call query and not take when countSuccess is false and request succeeds', () => {
+		it('should only call take and give when countSuccess is false and request succeeds', () => {
 			const fakeKey = {fake: 'key'};
 			getKey.returns(fakeKey);
-			query.resolves({conformant: true});
+			give.resolves({conformant: true});
+			take.resolves({conformant: true});
 			return server.inject({
 					url: '/limitFailedReq'
 				}).then(() => {
-					query.should.be.calledOnce();
-					query.should.be.calledWith('test', fakeKey);
+					take.should.be.calledOnce();
+					take.should.be.calledWith('test', fakeKey);
+					give.should.be.calledOnce();
+					give.should.be.calledWith('test', fakeKey);
 					handler.should.be.calledOnce();
-					take.should.not.be.called();
 				});
 		});
 
-		it('should not call handler or take if not conformant', () => {
+		it('should not call handler or give if not conformant', () => {
 			const fakeKey = {fake: 'key'};
 			getKey.returns(fakeKey);
-			query.resolves({conformant: false});
+			take.resolves({conformant: false});
 			return server.inject({
 					url: '/limitFailedReq'
 				}).then(() => {
-					query.should.be.calledOnce();
-					query.should.be.calledWith('test', fakeKey);
+					take.should.be.calledOnce();
+					take.should.be.calledWith('test', fakeKey);
 					handler.should.not.be.called();
-					take.should.not.be.called();
+					give.should.not.be.called();
 				});
 		});
 
-		it('should call query and take when countSuccess is false and request fails', () => {
+		it('should call take and not give when countSuccess is false and request fails', () => {
 			const fakeKey = {fake: 'key'};
 			const error = new Error('Ha!');
 			handler.rejects(error);
 			getKey.returns(fakeKey);
-			query.resolves({conformant: true});
 			const takeResponse = {conformant: true, remaining: 9, size: 10, ttl: Math.ceil(Date.now() / 1000) + 100};
 			take.resolves(takeResponse);
 			return server.inject({
 					url: '/limitFailedReq'
 				}).then(response => {
-					query.should.be.calledOnce();
-					query.should.be.calledWith('test', fakeKey);
-					handler.should.be.calledOnce();
 					take.should.be.calledOnce();
 					take.should.be.calledWith('test', fakeKey);
+					handler.should.be.calledOnce();
+					give.should.not.be.called();
 					should(response.headers).have.property('x-ratelimit-limit', takeResponse.size);
 					should(response.headers).have.property('x-ratelimit-remaining', takeResponse.remaining);
 					should(response.headers).have.property('x-ratelimit-reset', takeResponse.ttl);
@@ -543,25 +543,23 @@ describe('hapi-plugin', () => {
 
 		it('should log error when countSuccess is false and rate limit server returns an error', () => {
 			const fakeKey = {fake: 'key'};
-			const error = new Error('Ha!');
 			const rlError = new Error('Ha!Ha!');
-			handler.rejects(error);
 			getKey.returns(fakeKey);
-			query.resolves({conformant: true});
-			take.rejects(rlError);
+			take.resolves({conformant: true});
+			give.rejects(rlError);
 			return server.inject({
 					url: '/limitFailedReq'
 				}).then(response => {
-					query.should.be.calledOnce();
-					query.should.be.calledWith('test', fakeKey);
-					handler.should.be.calledOnce();
 					take.should.be.calledOnce();
 					take.should.be.calledWith('test', fakeKey);
+					handler.should.be.calledOnce();
+					give.should.be.calledOnce();
+					give.should.be.calledWith('test', fakeKey);
 					response.request.logs.should.containDeep([{tags: ['error'], error: rlError}]);
 				});
 		});
 
-		it('should respect route addHeaders settings when countSuccess ', () => {
+		it('should respect route addHeaders settings when countSuccess', () => {
 			const fakeKey = {fake: 'key'};
 			const limit = {
 				conformant: false,
@@ -570,14 +568,14 @@ describe('hapi-plugin', () => {
 				ttl: Math.ceil(Date.now() / 1000) + 100
 			};
 			getKey.returns(fakeKey);
-			query.resolves(limit);
+			take.resolves(limit);
 			return server.inject({
 					url: '/limitFailedNoHeaders'
 				}).then(response => {
-					query.should.be.calledOnce();
-					query.should.be.calledWith('test', fakeKey);
+					take.should.be.calledOnce();
+					take.should.be.calledWith('test', fakeKey);
 					handler.should.be.not.be.called();
-					take.should.be.not.be.called();
+					give.should.be.not.be.called();
 					should(response.headers).not.have.property('x-ratelimit-limit');
 					should(response.headers).not.have.property('x-ratelimit-remaining');
 					should(response.headers).not.have.property('x-ratelimit-reset');
@@ -587,7 +585,7 @@ describe('hapi-plugin', () => {
 		it('should respect route addHeaders settings when countSuccess and request fails', () => {
 			const fakeKey = {fake: 'key'};
 			const limit = {
-				conformant: false,
+				conformant: true,
 				size: 0,
 				remaining: 9,
 				ttl: Math.ceil(Date.now() / 1000) + 100
@@ -595,16 +593,14 @@ describe('hapi-plugin', () => {
 			const error = new Error('Ha!');
 			handler.rejects(error);
 			getKey.returns(fakeKey);
-			query.resolves({conformant: true});
 			take.resolves(limit);
 			return server.inject({
 					url: '/limitFailedNoHeaders'
 				}).then(response => {
-					query.should.be.calledOnce();
-					query.should.be.calledWith('test', fakeKey);
-					handler.should.be.calledOnce();
 					take.should.be.calledOnce();
 					take.should.be.calledWith('test', fakeKey);
+					handler.should.be.calledOnce();
+					give.should.not.be.called();
 					should(response.headers).not.have.property('x-ratelimit-limit');
 					should(response.headers).not.have.property('x-ratelimit-remaining');
 					should(response.headers).not.have.property('x-ratelimit-reset');
