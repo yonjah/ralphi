@@ -1,6 +1,6 @@
 {
   "name": "express-ralphi",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Rate limiting middleware for express",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
