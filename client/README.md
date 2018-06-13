@@ -9,7 +9,7 @@ Client for ralphi pure Node.js rate limiting server
 
 `Ralphi` is a simple rate limiting server intended to prevent bruteforce attacks on logins and other sensitive assets.
 
-For more info about Ralphi other components see [ralphi](../README.md)
+For more info about Ralphi other components see [ralphi](https://ralphi.js.org/)
 
 ## Client Installation
 

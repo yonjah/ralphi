@@ -16,9 +16,9 @@ Main difference to `limitd` -
 
 Ralphi currently has 4 independent npm modules to it
 - ralphi - Simple API server for rate limiting, use to store rate limiting data
-- [ralphi-client](../client/README.md) - client to easily query the server
-- [hapi-ralphi](../hapi-plugin/README.md) - [hapi.js](https://hapijs.com/) plugin to easily add rate limiting to hapi
-- [express-ralphi](../express-middleware/README.md) - [express.js](https://expressjs.com) middleware to easily add rate limiting to express
+- [ralphi-client](https://ralphi.js.org/client/) - client to easily query the server
+- [hapi-ralphi](https://ralphi.js.org/hapi-plugin/) - [hapi.js](https://hapijs.com/) plugin to easily add rate limiting to hapi
+- [express-ralphi](https://ralphi.js.org/express-middleware/) - [express.js](https://expressjs.com) middleware to easily add rate limiting to express
 
 ## Installation
 
@@ -69,7 +69,7 @@ init();
 
 `login` root will be rate limited according to the bucket settings, and rate limiting headers will be sent with the response.
 
-For more information see [hapi-ralphi](hapi-plugin/README.md) 
+For more information see [hapi-ralphi](https://ralphi.js.org/hapi-plugin/)
 
 ### Integrate rate limiting in express js
 <!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
@@ -86,7 +86,7 @@ app.get('/login', (rec, res) => res.send('Success'));
 
 `login` root will be rate limited according to the bucket settings, and rate limiting headers will be sent with the response.
 
-For more information see [express-ralphi](express-middleware/README.md)
+For more information see [express-ralphi](https://ralphi.js.org/express-middleware/)
 
 ### Integrate rate limiting in other frameworks
 <!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
@@ -106,7 +106,7 @@ async function handler (req, res) { //in your handler code
 }
 ```
 
-For more information see [ralphi-client](client/README.md)
+For more information see [ralphi-client](https://ralphi.js.org/client/)
 
 
 ## Config
