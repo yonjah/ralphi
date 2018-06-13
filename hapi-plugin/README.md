@@ -1,4 +1,5 @@
-# Ralphi
+# hapi-ralphi
+hapi plugin for ralphi pure Node.js rate limiting server
 
 [![npm version](https://img.shields.io/npm/v/hapi-ralphi.svg)](https://www.npmjs.com/package/hapi-ralphi)
 [![Build Status](https://travis-ci.org/yonjah/ralphi.svg?branch=master)](https://travis-ci.org/yonjah/ralphi)
