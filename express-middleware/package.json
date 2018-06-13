@@ -1,0 +1,45 @@
+{
+  "name": "express-ralphi",
+  "version": "2.1.0",
+  "description": "Rate limiting middleware for express",
+  "main": "index.js",
+  "author": "Yoni Jah <yonjah.npm@non.co.il>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yonjah/ralphi/issues"
+  },
+  "homepage": "https://ralphi.js.org",
+  "scripts": {
+    "test": "cd ..  && npm run test-express-middleware",
+    "cover": "cd ..  && npm run cover-express-middleware"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yonjah/ralphi.git"
+  },
+  "keywords": [
+    "ralphi",
+    "express",
+    "middleware",
+    "rate limiting",
+    "bruteforce protection",
+    "bruteforce",
+    "password",
+    "security",
+    "rate limit",
+    "throttling",
+    "throttle",
+    "rate",
+    "limit"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "peerDependencies": {
+    "express": ">= 4",
+    "ralphi-client": ">= 2.1.0"
+  },
+  "dependencies": {
+    "joi": "^13.1.2"
+  }
+}

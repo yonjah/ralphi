@@ -21,19 +21,23 @@
     "test-server": "mocha 'test/unit/server/**/*.test.js'",
     "test-client": "mocha 'test/unit/client/**/*.test.js'",
     "test-hapi-plugin": "mocha 'test/unit/hapi-plugin/**/*.test.js'",
+    "test-express-middleware": "mocha 'test/unit/express-middleware/**/*.test.js'",
     "postinstall": "npm run install-submodules",
-    "install-submodules": "npm run install-server &&  npm run install-client && npm run install-hapi-plugin",
+    "install-submodules": "npm run install-server &&  npm run install-client && npm run install-hapi-plugin && npm run install-express-middleware",
     "install-server": "cd server && npm install",
     "install-client": "cd client && npm install",
     "install-hapi-plugin": "cd hapi-plugin && npm install",
-    "version": "npm run version-server &&  npm run version-client && npm run version-hapi-plugin",
+    "install-express-middleware": "cd express-middleware && npm install",
+    "version": "npm run version-server &&  npm run version-client && npm run version-hapi-plugin && npm run version-express-middleware",
     "version-server": "cd server && npm version $npm_package_version",
     "version-client": "cd client && npm version $npm_package_version",
     "version-hapi-plugin": "cd hapi-plugin && npm version $npm_package_version",
-    "publish": "npm run publish-server &&  npm run publish-client && npm run publish-hapi-plugin",
+    "version-express-middleware": "cd express-middleware && npm version $npm_package_version",
+    "publish": "npm run publish-server &&  npm run publish-client && npm run publish-hapi-plugin && npm run publish-express-middleware",
     "publish-server": "cd server && npm publish",
     "publish-client": "cd client && npm publish",
-    "publish-hapi-plugin": "cd hapi-plugin && npm publish"
+    "publish-hapi-plugin": "cd hapi-plugin && npm publish",
+    "publish-express-middleware": "cd express-middleware && npm publish"
   },
   "repository": {
     "type": "git",
@@ -58,6 +62,7 @@
     "boom": "^7.2.0",
     "eslint": "^4.19.1",
     "eslint-plugin-markdown": "^1.0.0-beta.6",
+    "express": "^4.16.3",
     "hapi": "^17.3.1",
     "lolex": "^2.3.2",
     "mocha": "^5.0.5",
@@ -65,7 +70,8 @@
     "nyc": "^11.6.0",
     "should": "^13.2.1",
     "should-sinon": "0.0.6",
-    "sinon": "^4.5.0"
+    "sinon": "^4.5.0",
+    "supertest": "^3.1.0"
   },
   "dependencies": {
     "conventional-changelog-cli": "^1.3.21"

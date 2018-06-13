@@ -71,6 +71,23 @@ init();
 
 For more information see [hapi-ralphi](hapi-plugin/README.md) 
 
+### Integrate rate limiting in express js
+<!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
+
+```js
+const express   = require('express');
+const app       = express();
+const RateLimit = require('express-ralphi');
+const client    = new require('ralphi-client')();
+
+app.use('/login', RateLimit({bucket: 'login', client}));
+app.get('/login', (rec, res) => res.send('Success'));
+```
+
+`login` root will be rate limited according to the bucket settings, and rate limiting headers will be sent with the response.
+
+For more information see [express-ralphi](express-middleware/README.md)
+
 ### Integrate rate limiting in other frameworks
 <!-- eslint-disable strict,no-unused-vars,no-new-require,no-console -->
 
