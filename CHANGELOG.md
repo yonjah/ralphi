@@ -1,3 +1,14 @@
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/yonjah/ralphi/compare/v2.1.0...v3.0.0) (2018-06-13)
+
+
+### Features
+
+* api take now accept count integer -1,1 to allow giving back a token, client implement give method ([b7195c9](https://github.com/yonjah/ralphi/commit/b7195c9))
+* express middleware ([41e7096](https://github.com/yonjah/ralphi/commit/41e7096))
+
+
+
 <a name="2.1.0"></a>
 # [2.1.0](https://github.com/yonjah/ralphi/compare/v2.0.2...v2.1.0) (2018-05-07)
 
