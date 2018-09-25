@@ -17,8 +17,8 @@ Main difference to `limitd` -
 Ralphi currently has 4 independent npm modules to it
 - ralphi - Simple API server for rate limiting, use to store rate limiting data
 - [ralphi-client](https://ralphi.js.org/client/) - client to easily query the server
-- [hapi-ralphi](https://ralphi.js.org/hapi-plugin/) - [hapi.js](https://hapijs.com/) plugin to easily add rate limiting to hapi
-- [express-ralphi](https://ralphi.js.org/express-middleware/) - [express.js](https://expressjs.com) middleware to easily add rate limiting to express
+- [hapi-ralphi](https://ralphi.js.org/hapi-plugin/) - plugin to easily add rate limiting to [hapi.js](https://hapijs.com/)
+- [express-ralphi](https://ralphi.js.org/express-middleware/) - middleware to easily add rate limiting to [express.js](https://expressjs.com)
 
 ## Installation
 
