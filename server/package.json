@@ -1,7 +1,7 @@
 {
   "name": "ralphi",
   "version": "3.1.0",
-  "description": "Rate limiting api server",
+  "description": "Rate limit and bruteforce prevention api server",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",
@@ -22,11 +22,12 @@
   },
   "keywords": [
     "rate limiting",
+    "rate limit",
+    "rate limiter",
     "bruteforce protection",
     "bruteforce",
     "password",
     "security",
-    "rate limit",
     "throttling",
     "throttle",
     "rate",

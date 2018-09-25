@@ -1,7 +1,7 @@
 {
   "name": "hapi-ralphi",
   "version": "3.1.0",
-  "description": "Rate limiting plugin for hapi",
+  "description": "Rate limit and bruteforce prevention plugin for hapi",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",
@@ -18,15 +18,16 @@
     "url": "git+https://github.com/yonjah/ralphi.git"
   },
   "keywords": [
+    "rate limiting",
+    "rate limit",
+    "rate limiter",
     "ralphi",
     "hapi",
     "plugin",
-    "rate limiting",
     "bruteforce protection",
     "bruteforce",
     "password",
     "security",
-    "rate limit",
     "throttling",
     "throttle",
     "rate",

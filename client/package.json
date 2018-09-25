@@ -1,7 +1,7 @@
 {
   "name": "ralphi-client",
   "version": "3.1.0",
-  "description": "Rate limiting api client",
+  "description": "Rate limit and bruteforce prevention client",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
   "license": "MIT",
@@ -18,6 +18,9 @@
     "url": "git+https://github.com/yonjah/ralphi.git"
   },
   "keywords": [
+    "rate limiting",
+    "rate limit",
+    "rate limiter",
     "ralphi",
     "http",
     "client"
