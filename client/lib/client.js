@@ -4,8 +4,10 @@
  */
 'use strict';
 const promHttpRequest = require('./promHttpRequest');
+const http = require('http');
 const defaults = {
 	host: 'localhost',
+	keepAlive: false,
 	port: 8910,
 	timeout: 5000
 };
@@ -22,6 +24,9 @@ class RalphiClient {
 			throw new Error('Config timeout must be positive numeric integer');
 		}
 		this.settings = Object.assign({}, defaults, config);
+		if (this.settings.keepAlive) {
+			this.agent = new http.Agent({keepAlive: true});
+		}
 	}
 
 	/**
@@ -34,6 +39,7 @@ class RalphiClient {
 		_validateApiCall(bucket, key);
 		return promHttpRequest({
 				method: 'POST',
+				agent: this.agent,
 				host: this.settings.host,
 				port: this.settings.port,
 				timeout: this.settings.timeout,
@@ -55,6 +61,7 @@ class RalphiClient {
 		_validateApiCall(bucket, key);
 		return promHttpRequest({
 				method: 'POST',
+				agent: this.agent,
 				host: this.settings.host,
 				port: this.settings.port,
 				timeout: this.settings.timeout,
@@ -77,6 +84,7 @@ class RalphiClient {
 		_validateApiCall(bucket, key);
 		return promHttpRequest({
 				method: 'GET',
+				agent: this.agent,
 				host: this.settings.host,
 				port: this.settings.port,
 				timeout: this.settings.timeout,
@@ -98,6 +106,7 @@ class RalphiClient {
 		_validateApiCall(bucket, key);
 		return promHttpRequest({
 				method: 'DELETE',
+				agent: this.agent,
 				host: this.settings.host,
 				port: this.settings.port,
 				timeout: this.settings.timeout,
@@ -114,6 +123,7 @@ class RalphiClient {
 	clean () {
 		return promHttpRequest({
 				method: 'DELETE',
+				agent: this.agent,
 				host: this.settings.host,
 				port: this.settings.port,
 				timeout: this.settings.timeout,

@@ -42,6 +42,7 @@ async function handler (req, res) { //in your handler code
 - _host String (localhost)_ - host/ip  where Ralphi server is running on
 - _port Integer (8910)_ - port Ralphi server listens on
 - _timeout Integer (5000)_ - timeout for requests in miliseconds
+- _keepAlive Boolean (false)_ - if true http keep alive will be enabled when connecting to ralphi server (should have performance benefit)
 
 ## API
 Ralphi Client is using a Promise API all methods return Promises

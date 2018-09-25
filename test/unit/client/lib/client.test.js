@@ -10,14 +10,15 @@ const Client = requireSrc('client');
 describe('client', () => {
 	describe('constructor', () => {
 		it('should create new client using default settings', () => {
-			new Client().should.have.property('settings', {host: 'localhost', port: 8910, timeout: 5000});
+			new Client().should.have.property('settings', {host: 'localhost', port: 8910, timeout: 5000, keepAlive: false});
 		});
 
 		it('should merge settings with default settings', () => {
-			new Client({host: 'test'}).should.have.property('settings', {host: 'test', port: 8910, timeout: 5000});
-			new Client({port: 1234}).should.have.property('settings', {host: 'localhost', port: 1234, timeout: 5000});
-			new Client({timeout: 2000}).should.have.property('settings', {host: 'localhost', port: 8910, timeout: 2000});
-			new Client({port: 1234, timeout: 2000}).should.have.property('settings', {host: 'localhost', port: 1234, timeout: 2000});
+			new Client({host: 'test'}).should.have.property('settings', {host: 'test', port: 8910, timeout: 5000, keepAlive: false});
+			new Client({port: 1234}).should.have.property('settings', {host: 'localhost', port: 1234, timeout: 5000, keepAlive: false});
+			new Client({timeout: 2000}).should.have.property('settings', {host: 'localhost', port: 8910, timeout: 2000, keepAlive: false});
+			new Client({port: 1234, timeout: 2000}).should.have.property('settings', {host: 'localhost', port: 1234, timeout: 2000, keepAlive: false});
+			new Client({keepAlive: true}).should.have.property('settings', {host: 'localhost', port: 8910, timeout: 5000, keepAlive: true});
 		});
 
 		it('should validate config host as a string', () => {
