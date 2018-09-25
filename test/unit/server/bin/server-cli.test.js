@@ -286,7 +286,7 @@ describe('cli', function () {
 			const result = runCli(['--log-level', 'bad']);
 			result.stdout.should.not.be.ok();
 			result.stderr.should.be.ok();
-			result.stderr.should.match(/Error: unknown level bad/);
+			result.stderr.should.match(/Error: default level:bad must be included in custom levels/);
 		});
 	});
 
