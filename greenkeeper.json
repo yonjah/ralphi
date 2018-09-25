@@ -1,0 +1,13 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "client/package.json",
+        "express-middleware/package.json",
+        "hapi-plugin/package.json",
+        "package.json",
+        "server/package.json"
+      ]
+    }
+  }
+}
