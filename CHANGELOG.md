@@ -1,3 +1,13 @@
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/yonjah/ralphi/compare/v3.0.1...v3.1.0) (2018-09-25)
+
+
+### Features
+
+* added keepAlive setting for client connection ([bf27158](https://github.com/yonjah/ralphi/commit/bf27158))
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/yonjah/ralphi/compare/v2.1.0...v3.0.0) (2018-06-13)
 

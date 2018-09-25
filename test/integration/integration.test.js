@@ -135,10 +135,10 @@ describe('integration', () => {
 			app = express();
 
 			app.use('/slow', Middleware({bucket: 'eSlow', client}));
-			app.get('/slow', (rec, res) => res.send('Success'));
+			app.get('/slow', (req, res) => res.send('Success'));
 
 			app.use('/fast', Middleware({bucket: 'eFast', client}));
-			app.get('/fast', (rec, res) => res.send('Success'));
+			app.get('/fast', (req, res) => res.send('Success'));
 
 			expressServer = app.listen(port, cb);
 		});
