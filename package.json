@@ -65,7 +65,7 @@
     "eslint-plugin-markdown": "^1.0.0-beta.6",
     "express": "^4.16.3",
     "hapi": "^17.5.5",
-    "lolex": "^2.7.5",
+    "lolex": "^3.0.0",
     "mocha": "^5.2.0",
     "nock": "^10.0.0",
     "nyc": "^13.1.0",
