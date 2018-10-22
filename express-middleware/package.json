@@ -41,6 +41,6 @@
     "ralphi-client": ">= 3.0.0"
   },
   "dependencies": {
-    "joi": "^13.1.2"
+    "joi": "^14.0.1"
   }
 }
