@@ -62,7 +62,7 @@
   "devDependencies": {
     "boom": "^7.2.0",
     "eslint": "^5.6.0",
-    "eslint-plugin-markdown": "^1.0.0-beta.6",
+    "eslint-plugin-markdown": "^1.0.0-rc.0",
     "express": "^4.16.3",
     "hapi": "^17.5.5",
     "lolex": "^3.0.0",
