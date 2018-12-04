@@ -7,6 +7,10 @@ branches:
     - master
     - /^greenkeeper/.*$/
 
+install:
+  - npm ci
+  - npm run ci-submodules
+
 cache:
   directories:
     - node_modules
