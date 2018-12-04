@@ -21,7 +21,7 @@ function promiseIterator (iterator, func, resolve, reject) {
 function raplhDB (conf = {}) {
 	const buckets = new Map();
 	const config = joi.attempt(conf, validators.dbConfig, 'config');
-	const {logger} = config;
+	const {logger} = conf; //we need to get the logger from the original conf since joi will return malfunctioning cloned logger
 	_.forEach(config.buckets, (bucket, name) => {
 		buckets.set(name, Object.assign({storage: new Map()}, bucket));
 	});
