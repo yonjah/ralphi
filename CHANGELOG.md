@@ -1,3 +1,13 @@
+<a name="3.1.2"></a>
+## [3.1.2](https://github.com/yonjah/ralphi/compare/v3.1.1...v3.1.2) (2018-12-04)
+
+
+### Bug Fixes
+
+* use original loger object instead of cloned joi result ([5ad0977](https://github.com/yonjah/ralphi/commit/5ad0977))
+
+
+
 <a name="3.1.0"></a>
 # [3.1.0](https://github.com/yonjah/ralphi/compare/v3.0.1...v3.1.0) (2018-09-25)
 
