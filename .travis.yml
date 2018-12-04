@@ -30,7 +30,7 @@ jobs:
         - RUN_TEST=true
 
     - stage: tests
-      node_js: 9
+      node_js: 11
       env:
         - RUN_TEST=true
 
