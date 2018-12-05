@@ -7,9 +7,15 @@ branches:
     - master
     - /^greenkeeper/.*$/
 
+before_install:
+  - if [[ $TRAVIS_BRANCH == greenkeeper* ]]; then npm install -g greenkeeper-lockfile; fi
+
 install:
-  - npm ci
-  - npm run ci-submodules
+  - if [[ $TRAVIS_BRANCH == greenkeeper* ]]; then npm install; else npm ci; fi
+  - if [[ $TRAVIS_BRANCH == greenkeeper* ]]; then npm run install-submodules; else npm run ci-submodules; fi
+
+before_script: if [[ $TRAVIS_BRANCH == greenkeeper* ]]; then greenkeeper-lockfile-update; fi
+after_script: if [[ $TRAVIS_BRANCH == greenkeeper* ]]; then greenkeeper-lockfile-upload; fi
 
 cache:
   directories:
