@@ -65,22 +65,22 @@
     "node": ">=8.0.0"
   },
   "devDependencies": {
-    "boom": "^7.2.0",
-    "eslint": "^5.6.0",
-    "eslint-plugin-markdown": "^1.0.0-rc.0",
-    "express": "^4.16.3",
-    "hapi": "^17.6.4",
+    "boom": "^7.3.0",
+    "eslint": "^5.13.0",
+    "eslint-plugin-markdown": "^1.0.0",
+    "express": "^4.16.4",
+    "hapi": "^18.1.0",
     "lolex": "^3.0.0",
     "mocha": "^5.2.0",
-    "nock": "^10.0.0",
-    "nyc": "^13.1.0",
+    "nock": "^10.0.6",
+    "nyc": "^13.2.0",
     "sandra": "^0.3.2",
     "should": "^13.2.3",
     "should-sinon": "0.0.6",
-    "sinon": "^6.3.4",
-    "supertest": "^3.3.0"
+    "sinon": "^7.2.3",
+    "supertest": "^3.4.2"
   },
   "dependencies": {
-    "conventional-changelog-cli": "^2.0.5"
+    "conventional-changelog-cli": "^2.0.11"
   }
 }
