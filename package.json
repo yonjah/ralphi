@@ -83,7 +83,7 @@
     "should": "^13.2.3",
     "should-sinon": "0.0.6",
     "sinon": "^7.2.3",
-    "supertest": "^3.4.2"
+    "supertest": "^4.0.0"
   },
   "dependencies": {
     "conventional-changelog-cli": "^2.0.11"
