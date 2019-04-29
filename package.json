@@ -71,21 +71,20 @@
   },
   "devDependencies": {
     "boom": "^7.3.0",
-    "eslint": "^5.13.0",
+    "conventional-changelog-cli": "^2.0.18",
+    "eslint": "^5.16.0",
     "eslint-plugin-markdown": "^1.0.0",
     "express": "^4.16.4",
     "hapi": "^18.1.0",
     "lolex": "^4.0.1",
-    "mocha": "^5.2.0",
+    "mocha": "^6.1.4",
     "nock": "^10.0.6",
     "nyc": "^14.0.0",
     "sandra": "^0.3.2",
     "should": "^13.2.3",
     "should-sinon": "0.0.6",
-    "sinon": "^7.2.3",
-    "supertest": "^3.4.2"
+    "sinon": "^7.3.2",
+    "supertest": "^4.0.2"
   },
-  "dependencies": {
-    "conventional-changelog-cli": "^2.0.11"
-  }
+  "dependencies": {}
 }
