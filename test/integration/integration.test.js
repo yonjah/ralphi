@@ -18,7 +18,8 @@ describe('integration', () => {
 	const fastTtl = 1;
 	const client  = new Client();
 
-	let ralphiCli;
+	let ralphiCli,
+		ralphiLog = '';
 	before(cb => {
 		let called = false;
 		ralphiCli = spawn(binPath, [`hSlow,1,${slowTtl}ms`, `hFast,1,${fastTtl}ms`,`eSlow,1,${slowTtl}ms`, `eFast,1,${fastTtl}ms`]);
@@ -27,7 +28,9 @@ describe('integration', () => {
 			throw new Error(data.toString());
 		});
 
-		ralphiCli.stdout.on('data', () => {
+		ralphiCli.stdout.on('data', data => {
+			data = data.toString();
+			ralphiLog += data;
 			if (!called) {
 				called = true;
 				return cb();
@@ -123,6 +126,32 @@ describe('integration', () => {
 							res.headers.should.have.property('x-ratelimit-remaining', '0');
 							res.headers.should.have.property('x-ratelimit-reset');
 						});
+				});
+		});
+
+		it('should correctly log request', () => {
+			ralphiLog = '';
+			return promHttpRequest({
+					path: '/fast',
+					port
+				}).then(res => {
+					res.data.should.be.eql('Success');
+					res.headers.should.have.property('x-ratelimit-limit', '1');
+					res.headers.should.have.property('x-ratelimit-remaining', '0');
+					res.headers.should.have.property('x-ratelimit-reset');
+
+					return promDelay(400);
+				}).then(() => {
+					const logs = ralphiLog.split('\n');
+					const logEntry = JSON.parse(logs[0]);
+					logEntry.should.have.properties('level', 'time', 'pid', 'hostname', 'req', 'bucket', 'key', 'res', 'v');
+					logEntry.req.should.have.properties('method', 'url', 'headers', 'remoteAddress', 'remotePort');
+					logEntry.should.have.property('bucket', 'hFast');
+					logEntry.should.have.property('key', '127.0.0.1');
+					logEntry.res.should.have.properties('conformant', 'size', 'remaining', 'ttl');
+					logEntry.res.should.have.property('conformant', true);
+					logEntry.res.should.have.property('size', 1);
+					logEntry.res.should.have.property('remaining', 0);
 				});
 		});
 	});

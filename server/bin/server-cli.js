@@ -33,9 +33,7 @@ program
 
 process.on('uncaughtException', showUsageOnError);
 
-logger = pino({level: program.logLevel});
-
-logger.serializers = serializers;
+logger = pino({level: program.logLevel, serializers});
 
 const config = {port: program.port, host: program.host, cleanInterval: program.cleanInterval, buckets: program.args};
 
