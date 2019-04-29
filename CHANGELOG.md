@@ -1,3 +1,12 @@
+## <small>3.1.4 (2019-04-29)</small>
+
+* fix: logging to properly log request ([ce2870d](https://github.com/yonjah/ralphi/commit/ce2870d))
+* chore(package): update supertest to version 4.0.2, mocha to version 6.1.4, move conventional-changel ([1f0f195](https://github.com/yonjah/ralphi/commit/1f0f195))
+* Update lolex to the latest version 🚀 (#22) ([e1c4f89](https://github.com/yonjah/ralphi/commit/e1c4f89)), closes [#22](https://github.com/yonjah/ralphi/issues/22)
+* Update nyc to the latest version 🚀 (#21) ([9bd6360](https://github.com/yonjah/ralphi/commit/9bd6360)), closes [#21](https://github.com/yonjah/ralphi/issues/21)
+
+
+
 <a name="3.1.3"></a>
 ## [3.1.3](https://github.com/yonjah/ralphi/compare/v3.1.2...v3.1.3) (2019-02-08)
 
