@@ -1,3 +1,7 @@
+## [3.1.5](https://github.com/yonjah/ralphi/compare/v3.1.4...v3.1.5) (2019-07-10)
+
+
+
 ## <small>3.1.4 (2019-04-29)</small>
 
 * fix: logging to properly log request ([ce2870d](https://github.com/yonjah/ralphi/commit/ce2870d))
