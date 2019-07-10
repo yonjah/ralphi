@@ -50,7 +50,7 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 				return settings.onError(request, h, e);
 			}
 
-			request.plugins.ralphi = {
+			request.plugins.ralphi = {// eslint-disable-line require-atomic-updates
 				conformant: false,
 				size: settings.errorSize,
 				remaining: 0,
@@ -62,8 +62,8 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 			throw error;
 		}
 
-		request.plugins.ralphi = limit;
-		request.plugins.ralphi.addHeaders = settings.addHeaders;
+		request.plugins.ralphi = limit; // eslint-disable-line require-atomic-updates
+		request.plugins.ralphi.addHeaders = settings.addHeaders; // eslint-disable-line require-atomic-updates
 		if (limit.conformant) {
 			return h.continue;
 		}
