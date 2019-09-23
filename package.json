@@ -83,7 +83,7 @@
     "sandra": "^0.3.2",
     "should": "^13.2.3",
     "should-sinon": "0.0.6",
-    "sinon": "^7.3.2",
+    "sinon": "^7.5.0",
     "supertest": "^4.0.2"
   },
   "dependencies": {}
