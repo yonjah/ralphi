@@ -17,9 +17,13 @@ const optionsSchema = joi.object().keys({
 	bucket: joi.string().alphanum(),
 	countSuccess: joi.boolean().default(true),
 	addHeaders: joi.boolean().default(true),
+	headerLimit: joi.string().default('X-RateLimit-Limit'),
+	headerRemaining: joi.string().default('X-RateLimit-Remaining'),
+	headerReset: joi.string().default('X-RateLimit-Reset'),
 	message: joi.string().default('you have exceeded your request limit'),
 	onError: joi.func().arity(3),
 	getKey: joi.func().arity(1).default(getRequestIP),
+	ttlTransform: joi.func().arity(1).default(ttl => ttl),
 	errorSize: joi.number().integer().min(0).default(1),
 	errorDelay: joi.number().integer().min(1).default(60)
 }).required();
@@ -70,7 +74,7 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 
 		const error = boom.tooManyRequests(settings.message);
 		if (settings.addHeaders) {
-			decorateError(error, limit);
+			decorateError(error, limit, settings);
 		}
 		throw error;
 	});
@@ -96,21 +100,23 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 			return h.continue;
 		}
 
+		limit.ttl = settings.ttlTransform(limit.ttl);
+
 		if (response.isBoom) {
-			decorateError(response, limit);
+			decorateError(response, limit, settings);
 		} else {
-			response.header('X-RateLimit-Limit', limit.size);
-			response.header('X-RateLimit-Remaining', limit.remaining);
-			response.header('X-RateLimit-Reset', limit.ttl);
+			response.header(settings.headerLimit, limit.size);
+			response.header(settings.headerRemaining, limit.remaining);
+			response.header(settings.headerReset, limit.ttl);
 		}
 
 		return h.continue;
 	});
 
-	function decorateError (error, limit) {
-		error.output.headers['X-RateLimit-Limit'] = limit.size;
-		error.output.headers['X-RateLimit-Remaining'] = limit.remaining;
-		error.output.headers['X-RateLimit-Reset'] = limit.ttl;
+	function decorateError (error, limit, settings) {
+		error.output.headers[settings.headerLimit] = limit.size;
+		error.output.headers[settings.headerRemaining] = limit.remaining;
+		error.output.headers[settings.headerReset] = limit.ttl;
 	}
 
 	function getSettings (routeSettings) {
