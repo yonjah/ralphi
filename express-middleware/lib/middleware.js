@@ -58,7 +58,7 @@ function RalphiMiddleware (options) {
 				conformant: false,
 				size: settings.errorSize,
 				remaining: 0,
-				ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay
+				ttl: settings.ttlTransform(Math.ceil(Date.now() / 1000) + settings.errorDelay)
 			};
 		}
 

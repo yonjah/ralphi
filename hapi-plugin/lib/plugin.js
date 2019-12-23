@@ -58,7 +58,7 @@ function register (server, options, next) { // eslint-disable-line no-unused-var
 				conformant: false,
 				size: settings.errorSize,
 				remaining: 0,
-				ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay,
+				ttl: settings.ttlTransform(Math.ceil(Date.now() / 1000) + settings.errorDelay),
 				error: e
 			};
 			const error = boom.boomify(e, {statusCode: 429});
