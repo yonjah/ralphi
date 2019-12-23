@@ -1,6 +1,6 @@
 {
   "name": "ralphi",
-  "version": "3.1.5",
+  "version": "3.2.0",
   "description": "Rate limit and bruteforce prevention api server",
   "main": "index.js",
   "author": "Yoni Jah <yonjah.npm@non.co.il>",
