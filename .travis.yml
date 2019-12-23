@@ -36,7 +36,7 @@ jobs:
         - RUN_TEST=true
 
     - stage: tests
-      node_js: 11
+      node_js: 12
       env:
         - RUN_TEST=true
 
@@ -56,10 +56,10 @@ jobs:
         - RUN_TEST=true
 
     - stage: coverage
-      node_js: node
+      node_js: --lts
       env:
         - COVERAGE=true
 
     - stage: lint
-      node_js: node
+      node_js: --lts
       env: LINT=true
