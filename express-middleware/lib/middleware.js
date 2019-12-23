@@ -14,7 +14,11 @@ const optionsKeys = {
 	bucket      : joi.string().alphanum().required(),
 	countSuccess: joi.boolean().default(true),
 	getKey      : joi.func().arity(1).default(getRequestIP),
+	ttlTransform: joi.func().arity(1).default(ttl => ttl),
 	addHeaders  : joi.boolean().default(true),
+	headerLimit : joi.string().default('X-RateLimit-Limit'),
+	headerRemaining: joi.string().default('X-RateLimit-Remaining'),
+	headerReset : joi.string().default('X-RateLimit-Reset'),
 	message     : joi.string().default('you have exceeded your request limit'),
 	onError     : joi.func().arity(4),
 	errorSize   : joi.number().integer().min(0).default(1),
@@ -54,16 +58,14 @@ function RalphiMiddleware (options) {
 				conformant: false,
 				size: settings.errorSize,
 				remaining: 0,
-				ttl: Math.ceil(Date.now() / 1000) + settings.errorDelay
+				ttl: settings.ttlTransform(Math.ceil(Date.now() / 1000) + settings.errorDelay)
 			};
 		}
 
 		if (settings.addHeaders) {
-			res.set({
-				'X-RateLimit-Limit'    : limit.size,
-				'X-RateLimit-Remaining': limit.remaining,
-				'X-RateLimit-Reset'    : limit.ttl
-			});
+			res.set(settings.headerLimit, limit.size);
+			res.set(settings.headerRemaining, limit.remaining);
+			res.set(settings.headerReset, settings.ttlTransform(limit.ttl));
 		}
 
 		if (limit.conformant) {
@@ -84,7 +86,7 @@ function RalphiMiddleware (options) {
 		res.end = () =>  {
 			if (res.statusCode < 400) {
 				if (settings.addHeaders) {
-					res.set('X-RateLimit-Remaining', limit.remaining + 1);
+					res.set(settings.headerRemaining, limit.remaining + 1);
 				}
 				client.give(settings.bucket, key)
 					.catch(e => {

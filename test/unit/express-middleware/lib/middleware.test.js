@@ -80,12 +80,16 @@ describe('express-middleware', () => {
 	describe('middleware', () => {
 		const otherBucket = 'otherBucket';
 		const take        = sinon.stub();
-		const give       = sinon.stub();
+		const give        = sinon.stub();
 		const reset       = sinon.stub();
 		const getKey      = sinon.stub();
 		const errorLog    = sinon.stub();
 		const handler     = sinon.stub();
 		const onError     = sinon.stub();
+		const headerLimit = `header-limit-${Math.ceil(Math.random() * 1e6)}`;
+		const headerRemaining = `header-remaining-${Math.ceil(Math.random() * 1e6)}`;
+		const headerReset = `header-reset-${Math.ceil(Math.random() * 1e6)}`;
+		const ttlTransform = sinon.stub();
 		const message     = 'custom message';
 		const client      = {give: (x, y) => give(x, y), take: (x, y) => take(x, y), reset: (x, y) => reset(x, y)};
 
@@ -135,6 +139,16 @@ describe('express-middleware', () => {
 
 			app.use('/limitFailedNoHeaders', middleware.countSuccess(false).addHeaders(false));
 			app.get('/limitFailedNoHeaders', handlerWrap);
+
+			app.use(
+				'/headersOverride',
+				middleware.addHeaders(true)
+					.headerLimit(headerLimit)
+					.headerRemaining(headerRemaining)
+					.headerReset(headerReset)
+					.ttlTransform(ttl => ttlTransform(ttl))
+			);
+			app.get('/headersOverride', handlerWrap);
 
 			server = app.listen(0, done);
 		});
@@ -537,6 +551,31 @@ describe('express-middleware', () => {
 					should(response.headers).not.have.property('x-ratelimit-limit');
 					should(response.headers).not.have.property('x-ratelimit-remaining');
 					should(response.headers).not.have.property('x-ratelimit-reset');
+				});
+		});
+
+		it('should allow replacing headers and ttl', () => {
+			const ttl = Math.ceil(Date.now() / 1000) + Math.ceil(Math.random() * 1e6);
+			const overrideTtl = Math.ceil(Math.random() * 1e6);
+			const limit = {
+				conformant: true,
+				size: 10,
+				remaining: 9,
+				ttl
+			};
+			take.resolves(limit);
+			ttlTransform.returns(overrideTtl);
+			return request(app)
+				.get('/headersOverride')
+				.then(response => {
+					ttlTransform.should.be.calledOnce();
+					ttlTransform.should.be.calledWith(ttl);
+					should(response.headers).not.have.property('x-ratelimit-limit');
+					should(response.headers).not.have.property('x-ratelimit-remaining');
+					should(response.headers).not.have.property('x-ratelimit-reset');
+					should(response.headers).have.property(headerLimit, `${limit.size}`);
+					should(response.headers).have.property(headerRemaining, `${limit.remaining}`);
+					should(response.headers).have.property(headerReset, `${overrideTtl}`);
 				});
 		});
 
