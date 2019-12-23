@@ -54,10 +54,14 @@ init();
 - _client RalphiClient_ **required** - Ralphi client, used to query Ralphi server.
 - _ext String default(onPreHandler)_ - request flow hook when plugin should check rate limiting can be one of ('onPreAuth', 'onPostAuth', 'onPreHandler')
 - _allRoutes Boolean default(false)_ - if true rate limiting will be enabled by default on all routes
-- _bucket String_ bucket to use for rate limiting (**required** when _allRoutes_ is true)
+- _bucket String_ - bucket to use for rate limiting (**required** when _allRoutes_ is true)
 - _countSuccess Boolean default(true)_ - if true request are counted even if they are successful, when set to false only request that result in an error will be counted toward rate limiting.
 - _getKey Function(request)_ - A Function that will get the unique client key out of the request object. By default `request.info.remoteAddress` is used.
 - _addHeaders Boolean default(true)_ - Add the headers 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset' for routes that enable rate liming
+- _headerLimit String default('X-RateLimit-Limit')_ - name of the header that indicates the request quota
+- _headerRemaining String default('X-RateLimit-Remaining')_ - name of the header that indicates the remaining request quota
+- _headerReset String default('X-RateLimit-Reset')_ - name of the header that indicates how long until the request quota is reset
+- _ttlTransform Function(ttl)_ - A Function that allows transformation of the _ttl_ passed down from the Ralphi server.
 - _message String default('you have exceeded your request limit')_ - Error message in case limit has exceeded
 - _onError Function(request, reply, Error) default(undefined)_ - if communication with Ralphi server results in an error, plugin will call this method and stop processing the request. By default request will be rate limited using _errorSize_ and _errorDelay_ settings
 _errorSize Integer default(1)_ - default record size if Ralphi server is not available
