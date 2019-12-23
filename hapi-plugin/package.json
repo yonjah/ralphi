@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "hapi": ">=17.6.4",
-    "ralphi-client": ">= 3.0.0"
+    "ralphi-client": ">=3.2.0"
   },
   "dependencies": {
     "boom": "^7.3.0",
