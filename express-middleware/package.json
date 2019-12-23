@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "express": ">= 4",
-    "ralphi-client": ">= 3.0.0"
+    "ralphi-client": ">=3.2.0"
   },
   "dependencies": {
     "joi": "^14.3.1"
